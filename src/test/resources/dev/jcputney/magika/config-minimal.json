@@ -1,0 +1,31 @@
+{
+  "beg_size": 1024,
+  "mid_size": 0,
+  "end_size": 1024,
+  "block_size": 4096,
+  "padding_token": 256,
+  "min_file_size_for_dl": 8,
+  "medium_confidence_threshold": 0.5,
+  "use_inputs_at_offsets": false,
+  "target_labels_space": [
+    "unknown",
+    "empty",
+    "undefined",
+    "txt",
+    "html",
+    "zip",
+    "randombytes",
+    "randomtxt",
+    "markdown"
+  ],
+  "thresholds": {
+    "markdown": 0.75,
+    "handlebars": 0.9,
+    "crt": 0.9
+  },
+  "overwrite_map": {
+    "randombytes": "unknown",
+    "randomtxt": "txt"
+  },
+  "version_major": 3
+}

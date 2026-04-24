@@ -1,0 +1,42 @@
+[
+  {
+    "label": "html",
+    "group": "code",
+    "mime_type": "text/html",
+    "description": "HTML document",
+    "extensions": ["html", "htm"],
+    "is_text": true
+  },
+  {
+    "label": "zip",
+    "group": "archive",
+    "mime_type": "application/zip",
+    "description": "ZIP archive",
+    "extensions": ["zip"],
+    "is_text": false
+  },
+  {
+    "label": "txt",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "Plain text",
+    "extensions": ["txt"],
+    "is_text": true
+  },
+  {
+    "label": "unknown",
+    "group": "unknown",
+    "mime_type": "application/octet-stream",
+    "description": "Unknown binary",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "markdown",
+    "group": "text",
+    "mime_type": "text/markdown",
+    "description": "Markdown document",
+    "extensions": ["md", "markdown"],
+    "is_text": true
+  }
+]
