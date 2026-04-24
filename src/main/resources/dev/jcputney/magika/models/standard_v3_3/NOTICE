@@ -1,0 +1,16 @@
+standard_v3_3/model.onnx and associated config JSONs are vendored from
+github.com/google/magika under the Apache License 2.0.
+
+Upstream git commit: 363a44183a6f300d5d7143d94a19e6a841671650
+Upstream source paths:
+  - assets/models/standard_v3_3/model.onnx
+  - assets/models/standard_v3_3/config.min.json
+  - assets/content_types_kb.min.json  (transformed from map-of-entries
+    to array-of-entries; see docs/MODEL_CARD.md for details)
+  - LICENSE
+Upstream release: main (no release tag at this SHA)
+Vendoring date: 2026-04-24
+Committed model SHA-256: fe2d2eb49c5f88a9e0a6c048e15d6ffdf86235519c2afc535044de433169ec8c
+
+Upstream repository did not ship a NOTICE file at the pinned SHA; this
+NOTICE is authored by magika-java to satisfy Apache 2.0 attribution.

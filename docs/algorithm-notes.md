@@ -581,21 +581,17 @@ Python CLI (D-05, D-06).
 
 ## Model SHA-256
 
-Bundled `model.onnx` SHA-256: `<to be computed at vendor time — populated by
-Plan 4 when the .onnx bytes are committed>`.
+Bundled `model.onnx` SHA-256: `fe2d2eb49c5f88a9e0a6c048e15d6ffdf86235519c2afc535044de433169ec8c`.
 
-This placeholder is intentional. Plan 4 is the plan that vendors
-`assets/models/standard_v3_3/model.onnx` from upstream into
-`src/main/resources/dev/jcputney/magika/models/standard_v3_3/model.onnx`. At
-vendor time, Plan 4 computes the SHA-256 of the committed bytes and:
+Vendored in Plan 4 from `google/magika` upstream commit
+`363a44183a6f300d5d7143d94a19e6a841671650` (2026-04-24). The same digest
+appears in three load-bearing places; they must match byte-for-byte:
 
-1. Replaces this placeholder line with the actual digest (one commit).
-2. Records the same digest in `docs/MODEL_CARD.md` (DOC-06, also a Plan 4
-   deliverable), along with the upstream git commit SHA we vendored from and
-   the vendoring date.
-3. Declares a `public static final String BUNDLED_MODEL_SHA_256` in
-   `dev.jcputney.magika.inference.onnx.OnnxModelLoader` that matches this
-   value verbatim.
+1. This document (§Model SHA-256) — the canonical algorithm-notes reference.
+2. `docs/MODEL_CARD.md` (DOC-06) — the full provenance record, including
+   upstream git SHA, vendoring date, file size, and refresh procedure.
+3. `dev.jcputney.magika.inference.onnx.OnnxModelLoader.EXPECTED_SHA256`
+   — the constant the loader compares against at load time.
 
 The SHA-256 check at `OnnxModelLoader.load()` time is the tamper / repackaging
 canary (MODEL-05): if `SHA-256(bytes) != BUNDLED_MODEL_SHA_256`, the loader

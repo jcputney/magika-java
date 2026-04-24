@@ -1,0 +1,3519 @@
+[
+  {
+    "label": "3gp",
+    "group": "video",
+    "mime_type": "video/3gpp",
+    "description": "3GPP multimedia file",
+    "extensions": [
+      "3gp"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "3ds",
+    "group": "unknown",
+    "mime_type": "application/octet-stream",
+    "description": "Nintendo 3DS roms",
+    "extensions": [
+      "3ds"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "3dsx",
+    "group": "unknown",
+    "mime_type": "application/octet-stream",
+    "description": "Nintendo 3DS homebrew",
+    "extensions": [
+      "3dsx"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "3dsm",
+    "group": "image",
+    "mime_type": "application/x-3ds",
+    "description": "3D studio Max",
+    "extensions": [
+      "3ds"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "3mf",
+    "group": "image",
+    "mime_type": "application/vnd.ms-package.3dmanufacturing-3dmodel+xml",
+    "description": "3D Manufacturing Format",
+    "extensions": [
+      "3mf"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "abnf",
+    "group": null,
+    "mime_type": "text/plain",
+    "description": "augmented Backus–Naur form",
+    "extensions": [
+      "abnf"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ace",
+    "group": "archive",
+    "mime_type": "application/x-ace-compressed",
+    "description": "ACE archive",
+    "extensions": [
+      "ace"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ada",
+    "group": "code",
+    "mime_type": "text/x-ada",
+    "description": "ADA source",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "aff",
+    "group": null,
+    "mime_type": "text/plain",
+    "description": "Hunspell Affix",
+    "extensions": [
+      "aff"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "ai",
+    "group": "document",
+    "mime_type": "application/pdf",
+    "description": "Adobe Illustrator Artwork",
+    "extensions": [
+      "ai"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "aidl",
+    "group": null,
+    "mime_type": "text/plain",
+    "description": "Android Interface Definition Language",
+    "extensions": [
+      "aidl"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "algol68",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "a68"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ani",
+    "group": null,
+    "mime_type": "application/x-navi-animation",
+    "description": "Animated cursor",
+    "extensions": [
+      "ani"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "apk",
+    "group": "executable",
+    "mime_type": "application/vnd.android.package-archive",
+    "description": "Android package",
+    "extensions": [
+      "apk"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "applebplist",
+    "group": "application",
+    "mime_type": "application/x-bplist",
+    "description": "Apple binary property list",
+    "extensions": [
+      "bplist",
+      "plist"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "appledouble",
+    "group": "unknown",
+    "mime_type": "multipart/appledouble",
+    "description": "AppleDouble",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "appleplist",
+    "group": "application",
+    "mime_type": "application/x-plist",
+    "description": "Apple property list",
+    "extensions": [
+      "plist"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "applesingle",
+    "group": "unknown",
+    "mime_type": "application/applefile",
+    "description": "AppleSingle",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "ar",
+    "group": "archive",
+    "mime_type": "application/x-archive",
+    "description": "AR Archive",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "arc",
+    "group": "archive",
+    "mime_type": "application/x-arc",
+    "description": "Arc",
+    "extensions": [
+      "arc"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "arj",
+    "group": "archive",
+    "mime_type": "application/arj",
+    "description": "Arj",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "arrow",
+    "group": null,
+    "mime_type": "vnd.apache.arrow.file",
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "asc",
+    "group": "text",
+    "mime_type": "application/pgp-signature",
+    "description": "PGP",
+    "extensions": [
+      "asc"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "asd",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "au",
+    "group": "audio",
+    "mime_type": "audio/basic",
+    "description": "NeXT/Sun AU",
+    "extensions": [
+      "au"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "asf",
+    "group": "application",
+    "mime_type": "video/x-ms-wma",
+    "description": "Microsoft Advanced Systems Format",
+    "extensions": [
+      "asf"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "asm",
+    "group": "code",
+    "mime_type": "text/x-asm",
+    "description": "Assembly",
+    "extensions": [
+      "s",
+      "S",
+      "asm"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "asp",
+    "group": "code",
+    "mime_type": "text/html",
+    "description": "ASP source",
+    "extensions": [
+      "aspx",
+      "asp"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "autohotkey",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "AutoHotKey script",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "autoit",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "AutoIt script",
+    "extensions": [
+      "au3"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "avi",
+    "group": "video",
+    "mime_type": "video/x-msvideo",
+    "description": "Audio Video Interleave",
+    "extensions": [
+      "avi"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "avif",
+    "group": "video",
+    "mime_type": "image/avif",
+    "description": "AV1 Image File Format",
+    "extensions": [
+      "avif",
+      "avifs"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "avro",
+    "group": null,
+    "mime_type": "application/x-avro-binary",
+    "description": "Apache Avro binary",
+    "extensions": [
+      "avro"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "awk",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Awk",
+    "extensions": [
+      "awk"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "ax",
+    "group": "executable",
+    "mime_type": "application/x-dosexec",
+    "description": "Directshow filter",
+    "extensions": [
+      "ax"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "batch",
+    "group": "code",
+    "mime_type": "text/x-msdos-batch",
+    "description": "DOS batch file",
+    "extensions": [
+      "bat"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "bazel",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Bazel build file",
+    "extensions": [
+      "bzl"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "bcad",
+    "group": "document",
+    "mime_type": "application/octet-stream",
+    "description": "bCAD Drawing",
+    "extensions": [
+      "bdf"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "bib",
+    "group": "text",
+    "mime_type": "text/x-bibtex",
+    "description": "BibTeX",
+    "extensions": [
+      "bib"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "bmp",
+    "group": "image",
+    "mime_type": "image/bmp",
+    "description": "BMP image data",
+    "extensions": [
+      "bmp"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "bpg",
+    "group": "image",
+    "mime_type": "image/bpg",
+    "description": "BPG",
+    "extensions": [
+      "bpg"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "bpl",
+    "group": "unknown",
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "bpl"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "brainfuck",
+    "group": "code",
+    "mime_type": "text/x-brainfuck",
+    "description": "Brainfuck source",
+    "extensions": [
+      "b",
+      "bf"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "brf",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "Braille Ready Format",
+    "extensions": [
+      "brf",
+      "bfm"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "bzip",
+    "group": "archive",
+    "mime_type": "application/x-bzip2",
+    "description": "bzip2 compressed data",
+    "extensions": [
+      "bz2",
+      "tbz2",
+      "tar.bz2"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "bzip3",
+    "group": "archive",
+    "mime_type": "application/x-bzip3",
+    "description": "bzip3 compressed data",
+    "extensions": [
+      "bz3"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "c",
+    "group": "code",
+    "mime_type": "text/x-c",
+    "description": "C source",
+    "extensions": [
+      "c"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "cab",
+    "group": "archive",
+    "mime_type": "application/vnd.ms-cab-compressed",
+    "description": "Microsoft Cabinet archive data",
+    "extensions": [
+      "cab"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "cad",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "cat",
+    "group": "application",
+    "mime_type": "application/octet-stream",
+    "description": "Windows Catalog file",
+    "extensions": [
+      "cat"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "cdf",
+    "group": "archive",
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "chm",
+    "group": "application",
+    "mime_type": "application/chm",
+    "description": "MS Windows HtmlHelp Data",
+    "extensions": [
+      "chm"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "clojure",
+    "group": "code",
+    "mime_type": "text/x-clojure",
+    "description": "Clojure",
+    "extensions": [
+      "clj",
+      "cljs",
+      "cljc",
+      "cljr"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "cmake",
+    "group": "code",
+    "mime_type": "text/x-cmake",
+    "description": "CMake build file",
+    "extensions": [
+      "cmake"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "cobol",
+    "group": "code",
+    "mime_type": "text/x-cobol",
+    "description": "Cobol",
+    "extensions": [
+      "cbl",
+      "cob",
+      "cpy",
+      "CBL",
+      "COB",
+      "CPY"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "coff",
+    "group": "executable",
+    "mime_type": "application/x-coff",
+    "description": "Intel 80386 COFF",
+    "extensions": [
+      "obj",
+      "o"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "coffeescript",
+    "group": "code",
+    "mime_type": "text/coffeescript",
+    "description": "CoffeeScript",
+    "extensions": [
+      "coffee"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "com",
+    "group": "executable",
+    "mime_type": "application/x-dosexec",
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "cpl",
+    "group": "executable",
+    "mime_type": "application/x-dosexec",
+    "description": "PE Windows executable",
+    "extensions": [
+      "cpl"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "cpp",
+    "group": "code",
+    "mime_type": "text/x-c",
+    "description": "C++ source",
+    "extensions": [
+      "cc",
+      "cpp",
+      "cxx",
+      "c++",
+      "cppm",
+      "ixx"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "crt",
+    "group": "text",
+    "mime_type": "application/x-x509-ca-cert",
+    "description": "Certificates (binary format)",
+    "extensions": [
+      "der",
+      "cer",
+      "crt"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "crx",
+    "group": "executable",
+    "mime_type": "application/x-chrome-extension",
+    "description": "Google Chrome extension",
+    "extensions": [
+      "crx"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "cs",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "C# source",
+    "extensions": [
+      "cs",
+      "csx"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "csproj",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": ".NET project config",
+    "extensions": [
+      "csproj"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "css",
+    "group": "code",
+    "mime_type": "text/css",
+    "description": "CSS source",
+    "extensions": [
+      "css"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "csv",
+    "group": "code",
+    "mime_type": "text/csv",
+    "description": "CSV document",
+    "extensions": [
+      "csv"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "ctl",
+    "group": null,
+    "mime_type": "application/octet-stream",
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "dart",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Dart source",
+    "extensions": [
+      "dart"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "deb",
+    "group": "archive",
+    "mime_type": "application/vnd.debian.binary-package",
+    "description": "Debian binary package",
+    "extensions": [
+      "deb"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "dex",
+    "group": "executable",
+    "mime_type": "application/x-android-dex",
+    "description": "Dalvik dex file",
+    "extensions": [
+      "dex"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "dey",
+    "group": "executable",
+    "mime_type": "application/x-android-dey",
+    "description": "Dalvik dex file",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "dicom",
+    "group": "image",
+    "mime_type": "application/dicom",
+    "description": "DICOM",
+    "extensions": [
+      "dcm"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "diff",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "Diff file",
+    "extensions": [
+      "diff",
+      "patch"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "directory",
+    "group": "inode",
+    "mime_type": "inode/directory",
+    "description": "A directory",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "django",
+    "group": "code",
+    "mime_type": "text/x-django",
+    "description": "Django source",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "dll",
+    "group": "executable",
+    "mime_type": "application/x-dosexec",
+    "description": "PE Windows executable",
+    "extensions": [
+      "dll"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "dm",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Dream Maker",
+    "extensions": [
+      "dm"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "dmigd",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "Dominion Mods",
+    "extensions": [
+      "dm"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "dmg",
+    "group": "archive",
+    "mime_type": "application/x-apple-diskimage",
+    "description": "Apple disk image",
+    "extensions": [
+      "dmg"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "dmscript",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Digital Micrograph Script",
+    "extensions": [
+      "s"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "doc",
+    "group": "document",
+    "mime_type": "application/msword",
+    "description": "Microsoft Word CDF document",
+    "extensions": [
+      "doc"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "dockerfile",
+    "group": "code",
+    "mime_type": "text/x-dockerfile",
+    "description": "Dockerfile",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "docx",
+    "group": "document",
+    "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "description": "Microsoft Word 2007+ document",
+    "extensions": [
+      "docx",
+      "docm"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "dosmbr",
+    "group": null,
+    "mime_type": "application/octet-stream",
+    "description": "Master boot record",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "dotx",
+    "group": "document",
+    "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.template",
+    "description": "Office Word 2007 template",
+    "extensions": [
+      "dotx"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "dsstore",
+    "group": "unknown",
+    "mime_type": "application/octet-stream",
+    "description": "Application Desktop Services Store",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "dwg",
+    "group": "image",
+    "mime_type": "image/x-dwg",
+    "description": "Autocad Drawing",
+    "extensions": [
+      "dwg"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "dxf",
+    "group": "image",
+    "mime_type": "image/vnd.dxf",
+    "description": "Audocad Drawing Exchange Format",
+    "extensions": [
+      "dxf"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "dylib",
+    "group": "executable",
+    "mime_type": "application/x-mach-o",
+    "description": "Mach-O executable",
+    "extensions": [
+      "dylib"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ebml",
+    "group": "unknown",
+    "mime_type": "application/octet-stream",
+    "description": "Extensible Binary Meta Language",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "elf",
+    "group": "executable",
+    "mime_type": "application/x-executable-elf",
+    "description": "ELF executable",
+    "extensions": [
+      "elf"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "elixir",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Elixir script",
+    "extensions": [
+      "exs"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "emf",
+    "group": "application",
+    "mime_type": "application/octet-stream",
+    "description": "Windows Enhanced Metafile image data",
+    "extensions": [
+      "emf"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "eml",
+    "group": "text",
+    "mime_type": "message/rfc822",
+    "description": "RFC 822 mail",
+    "extensions": [
+      "eml"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "empty",
+    "group": "inode",
+    "mime_type": "inode/x-empty",
+    "description": "Empty file",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "epub",
+    "group": "document",
+    "mime_type": "application/epub+zip",
+    "description": "EPUB document",
+    "extensions": [
+      "epub"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "erb",
+    "group": "code",
+    "mime_type": "text/x-ruby",
+    "description": "Embedded Ruby source",
+    "extensions": [
+      "erb"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "erlang",
+    "group": "code",
+    "mime_type": "text/x-erlang",
+    "description": "Erlang source",
+    "extensions": [
+      "erl",
+      "hrl"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "ese",
+    "group": null,
+    "mime_type": "application/x-ms-ese",
+    "description": "ESE Db",
+    "extensions": [
+      "dat"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "exe",
+    "group": "executable",
+    "mime_type": "application/x-dosexec",
+    "description": "PE executable",
+    "extensions": [
+      "exe"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "exp",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "flac",
+    "group": "audio",
+    "mime_type": "audio/flac",
+    "description": "FLAC audio bitstream data",
+    "extensions": [
+      "flac"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "flutter",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "flv",
+    "group": "video",
+    "mime_type": "video/x-flv",
+    "description": "Flash Video",
+    "extensions": [
+      "flv"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "fortran",
+    "group": "document",
+    "mime_type": "text/x-fortran",
+    "description": "Fortran",
+    "extensions": [
+      "f90",
+      "f95",
+      "f03",
+      "F90"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "fpx",
+    "group": "image",
+    "mime_type": null,
+    "description": "Flashpix",
+    "extensions": [
+      "fpx"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "gemfile",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Gemfile file",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "gemspec",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Gemspec file",
+    "extensions": [
+      "gemspec"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "gif",
+    "group": "image",
+    "mime_type": "image/gif",
+    "description": "GIF image data",
+    "extensions": [
+      "gif"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "gitattributes",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Gitattributes file",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "gitmodules",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Gitmodules file",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "gleam",
+    "group": "code",
+    "mime_type": null,
+    "description": "Gleam source",
+    "extensions": [
+      "gleam"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "go",
+    "group": "code",
+    "mime_type": "text/x-golang",
+    "description": "Golang source",
+    "extensions": [
+      "go"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "gpx",
+    "group": null,
+    "mime_type": null,
+    "description": "XML document",
+    "extensions": [
+      "gpx"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "gradle",
+    "group": "code",
+    "mime_type": "text/x-groovy",
+    "description": "Gradle source",
+    "extensions": [
+      "gradle"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "groovy",
+    "group": "code",
+    "mime_type": "text/x-groovy",
+    "description": "Groovy source",
+    "extensions": [
+      "groovy"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "gzip",
+    "group": "archive",
+    "mime_type": "application/gzip",
+    "description": "gzip compressed data",
+    "extensions": [
+      "gz",
+      "gzip",
+      "tgz",
+      "tar.gz"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "h",
+    "group": "code",
+    "mime_type": "text/x-c",
+    "description": "C header source",
+    "extensions": [
+      "h"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "h5",
+    "group": "archive",
+    "mime_type": "application/x-hdf5",
+    "description": "Hierarchical Data Format v5",
+    "extensions": [
+      "h5",
+      "hdf5"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "handlebars",
+    "group": "code",
+    "mime_type": "text/x-handlebars-template",
+    "description": "Handlebars source",
+    "extensions": [
+      "hbs",
+      "handlebars"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "haskell",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Haskell source",
+    "extensions": [
+      "hs",
+      "lhs"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "hcl",
+    "group": "code",
+    "mime_type": "text/x-hcl",
+    "description": "HashiCorp configuration language",
+    "extensions": [
+      "hcl"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "heif",
+    "group": "image",
+    "mime_type": "image/heic",
+    "description": "High Efficiency Image File",
+    "extensions": [
+      "heif",
+      "heifs",
+      "heic",
+      "heics"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "hfs",
+    "group": null,
+    "mime_type": "application/x-hfs",
+    "description": null,
+    "extensions": [
+      "hfs"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "hlp",
+    "group": "application",
+    "mime_type": "application/winhlp",
+    "description": "MS Windows help",
+    "extensions": [
+      "hlp"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "hpp",
+    "group": "code",
+    "mime_type": "text/x-h",
+    "description": null,
+    "extensions": [
+      "hh",
+      "hpp",
+      "hxx",
+      "h++"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "hta",
+    "group": "code",
+    "mime_type": "application/hta",
+    "description": "HTML Application",
+    "extensions": [
+      "hta"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "htaccess",
+    "group": "code",
+    "mime_type": "text/x-apache-conf",
+    "description": "Apache access configuration",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "html",
+    "group": "code",
+    "mime_type": "text/html",
+    "description": "HTML document",
+    "extensions": [
+      "html",
+      "htm",
+      "xhtml",
+      "xht"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "hve",
+    "group": "unknown",
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "hwp",
+    "group": "document",
+    "mime_type": "application/x-hwp",
+    "description": "Hangul Word Processor",
+    "extensions": [
+      "hwp"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "icc",
+    "group": null,
+    "mime_type": "application/vnd.iccprofile",
+    "description": "ICC profile",
+    "extensions": [
+      "icc"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "icns",
+    "group": "image",
+    "mime_type": "image/x-icns",
+    "description": "Mac OS X icon",
+    "extensions": [
+      "icns"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ico",
+    "group": "image",
+    "mime_type": "image/vnd.microsoft.icon",
+    "description": "MS Windows icon resource",
+    "extensions": [
+      "ico"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ics",
+    "group": "application",
+    "mime_type": "text/calendar",
+    "description": "Internet Calendaring and Scheduling",
+    "extensions": [
+      "ics"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "ignorefile",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Ignorefile",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "img",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "img"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ini",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "INI configuration file",
+    "extensions": [
+      "ini"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "internetshortcut",
+    "group": "application",
+    "mime_type": "application/x-mswinurl",
+    "description": "MS Windows Internet shortcut",
+    "extensions": [
+      "url"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "iosapp",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "ipynb",
+    "group": "code",
+    "mime_type": "application/json",
+    "description": "Jupyter notebook",
+    "extensions": [
+      "ipynb"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "iso",
+    "group": "archive",
+    "mime_type": "application/x-iso9660-image",
+    "description": "ISO 9660 CD-ROM filesystem data",
+    "extensions": [
+      "iso"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "jar",
+    "group": "archive",
+    "mime_type": "application/java-archive",
+    "description": "Java archive data (JAR)",
+    "extensions": [
+      "jar",
+      "klib"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "java",
+    "group": "code",
+    "mime_type": "text/x-java",
+    "description": "Java source",
+    "extensions": [
+      "java"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "javabytecode",
+    "group": "executable",
+    "mime_type": "application/x-java-applet",
+    "description": "Java compiled bytecode",
+    "extensions": [
+      "class"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "javascript",
+    "group": "code",
+    "mime_type": "application/javascript",
+    "description": "JavaScript source",
+    "extensions": [
+      "js",
+      "mjs",
+      "cjs"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "jinja",
+    "group": "code",
+    "mime_type": "text/x-jinja2-template",
+    "description": "Jinja template",
+    "extensions": [
+      "jinja",
+      "jinja2",
+      "j2"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "jng",
+    "group": "image",
+    "mime_type": "image/jng",
+    "description": "JPEG network graphics",
+    "extensions": [
+      "jng"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "jnlp",
+    "group": "code",
+    "mime_type": "application/x-java-jnlp-file",
+    "description": "Java Network Launch Protocol",
+    "extensions": [
+      "jnlp"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "jp2",
+    "group": "image",
+    "mime_type": "image/jpeg2000",
+    "description": "jpeg2000",
+    "extensions": [
+      "jp2"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "jpeg",
+    "group": "image",
+    "mime_type": "image/jpeg",
+    "description": "JPEG image data",
+    "extensions": [
+      "jpg",
+      "jpeg"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "json",
+    "group": "code",
+    "mime_type": "application/json",
+    "description": "JSON document",
+    "extensions": [
+      "json"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "jsonc",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "jsonl",
+    "group": "code",
+    "mime_type": "application/json",
+    "description": "JSONL document",
+    "extensions": [
+      "jsonl",
+      "jsonld"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "jsx",
+    "group": "code",
+    "mime_type": "application/javascript",
+    "description": "JSX source",
+    "extensions": [
+      "jsx",
+      "mjsx",
+      "cjsx"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "julia",
+    "group": "code",
+    "mime_type": "text/x-julia",
+    "description": "Julia source",
+    "extensions": [
+      "jl"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "jxl",
+    "group": "image",
+    "mime_type": "image/jxl",
+    "description": "JPEG XL",
+    "extensions": [
+      "jxl"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ko",
+    "group": "executable",
+    "mime_type": "application/x-executable-elf",
+    "description": "ELF executable, kernel object",
+    "extensions": [
+      "ko"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "kotlin",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Kotlin source",
+    "extensions": [
+      "kt",
+      "kts"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "ks",
+    "group": null,
+    "mime_type": null,
+    "description": "Tyrano",
+    "extensions": [
+      "ks"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "latex",
+    "group": "text",
+    "mime_type": "text/x-tex",
+    "description": "LaTeX document",
+    "extensions": [
+      "tex",
+      "sty"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "latexaux",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "aux"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "less",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "lha",
+    "group": "archive",
+    "mime_type": "application/x-lha",
+    "description": "LHarc archive",
+    "extensions": [
+      "lha",
+      "lzh"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "license",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "License file",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "lisp",
+    "group": "code",
+    "mime_type": "text/x-lisp",
+    "description": "Lisp source",
+    "extensions": [
+      "lisp",
+      "lsp",
+      "l",
+      "cl"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "litcs",
+    "group": null,
+    "mime_type": null,
+    "description": "Literate CS",
+    "extensions": [
+      "litcoffee"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "lnk",
+    "group": "application",
+    "mime_type": "application/x-ms-shortcut",
+    "description": "MS Windows shortcut",
+    "extensions": [
+      "lnk"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "lock",
+    "group": "application",
+    "mime_type": "text/plain",
+    "description": "Lock file",
+    "extensions": [
+      "lock"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "lrz",
+    "group": null,
+    "mime_type": "application/x-lrzip",
+    "description": "LRZip",
+    "extensions": [
+      "lrz"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "lua",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Lua",
+    "extensions": [
+      "lua"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "lz",
+    "group": "archive",
+    "mime_type": "application/x-lzip",
+    "description": "LZip",
+    "extensions": [
+      "lz"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "lz4",
+    "group": "archive",
+    "mime_type": "application/x-lz4",
+    "description": "LZ4",
+    "extensions": [
+      "lz4"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "lzx",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "m3u",
+    "group": "application",
+    "mime_type": "text/plain",
+    "description": "M3U playlist",
+    "extensions": [
+      "m3u8",
+      "m3u"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "m4",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "GNU Macro",
+    "extensions": [
+      "m4"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "macho",
+    "group": "executable",
+    "mime_type": "application/x-mach-o",
+    "description": "Mach-O executable",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "maff",
+    "group": null,
+    "mime_type": "application/x-maff",
+    "description": null,
+    "extensions": [
+      "maff"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "makefile",
+    "group": "code",
+    "mime_type": "text/x-makefile",
+    "description": "Makefile source",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "markdown",
+    "group": "text",
+    "mime_type": "text/markdown",
+    "description": "Markdown document",
+    "extensions": [
+      "md",
+      "markdown"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "matlab",
+    "group": "code",
+    "mime_type": "text/x-matlab",
+    "description": "Matlab Source",
+    "extensions": [
+      "m",
+      "matlab"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "mht",
+    "group": "code",
+    "mime_type": "application/x-mimearchive",
+    "description": "MHTML document",
+    "extensions": [
+      "mht"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "midi",
+    "group": "audio",
+    "mime_type": "audio/midi",
+    "description": "Midi",
+    "extensions": [
+      "mid"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "mkv",
+    "group": "video",
+    "mime_type": "video/x-matroska",
+    "description": "Matroska",
+    "extensions": [
+      "mkv"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "mp2",
+    "group": null,
+    "mime_type": null,
+    "description": "MP2 stream",
+    "extensions": [
+      "mp2"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "mp3",
+    "group": "audio",
+    "mime_type": "audio/mpeg",
+    "description": "MP3 media file",
+    "extensions": [
+      "mp3"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "mp4",
+    "group": "video",
+    "mime_type": "video/mp4",
+    "description": "MP4 media file",
+    "extensions": [
+      "mp4"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "mpegts",
+    "group": "video",
+    "mime_type": "video/MP2T",
+    "description": "MPEG Transport stream",
+    "extensions": [
+      "ts",
+      "tsv",
+      "tsa",
+      "m2t"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "mscompress",
+    "group": "archive",
+    "mime_type": "application/x-ms-compress-szdd",
+    "description": "MS Compress archive data",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "msi",
+    "group": "archive",
+    "mime_type": "application/x-msi",
+    "description": "Microsoft Installer file",
+    "extensions": [
+      "msi"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "msix",
+    "group": "application",
+    "mime_type": "application/msix",
+    "description": "Windows app package",
+    "extensions": [
+      "msix"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "mst",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "mst"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "mui",
+    "group": "application",
+    "mime_type": "application/x-dosexec",
+    "description": "PE Windows executable",
+    "extensions": [
+      "mui"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "mum",
+    "group": "application",
+    "mime_type": "text/xml",
+    "description": "Windows Update Package file",
+    "extensions": [
+      "mum"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "mun",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "mun"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "nim",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "npy",
+    "group": "archive",
+    "mime_type": "application/octet-stream",
+    "description": "Numpy Array",
+    "extensions": [
+      "npy"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "npz",
+    "group": "archive",
+    "mime_type": "application/octet-stream",
+    "description": "Numpy Arrays Archive",
+    "extensions": [
+      "npz"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "null",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "null"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "nupkg",
+    "group": null,
+    "mime_type": "application/octet-stream",
+    "description": "NuGet Package",
+    "extensions": [
+      "nupkg"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "object",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "o"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "objectivec",
+    "group": "code",
+    "mime_type": "text/x-objcsrc",
+    "description": "ObjectiveC source",
+    "extensions": [
+      "m",
+      "mm"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "ocaml",
+    "group": "code",
+    "mime_type": "text-ocaml",
+    "description": "OCaml",
+    "extensions": [
+      "ml",
+      "mli"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "ocx",
+    "group": "executable",
+    "mime_type": "application/x-dosexec",
+    "description": "PE Windows executable",
+    "extensions": [
+      "ocx"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "odex",
+    "group": "executable",
+    "mime_type": "application/x-executable-elf",
+    "description": "ODEX ELF executable",
+    "extensions": [
+      "odex"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "odin",
+    "group": "code",
+    "mime_type": null,
+    "description": "Odin",
+    "extensions": [
+      "odin"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "odp",
+    "group": "document",
+    "mime_type": "application/vnd.oasis.opendocument.presentation",
+    "description": "OpenDocument Presentation",
+    "extensions": [
+      "odp"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ods",
+    "group": "document",
+    "mime_type": "application/vnd.oasis.opendocument.spreadsheet",
+    "description": "OpenDocument Spreadsheet",
+    "extensions": [
+      "ods"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "odt",
+    "group": "document",
+    "mime_type": "application/vnd.oasis.opendocument.text",
+    "description": "OpenDocument Text",
+    "extensions": [
+      "odt"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ogg",
+    "group": "audio",
+    "mime_type": "audio/ogg",
+    "description": "Ogg data",
+    "extensions": [
+      "ogg"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ole",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "one",
+    "group": "document",
+    "mime_type": "application/msonenote",
+    "description": "One Note",
+    "extensions": [
+      "one"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "onnx",
+    "group": "archive",
+    "mime_type": "application/octet-stream",
+    "description": "Open Neural Network Exchange",
+    "extensions": [
+      "onnx"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "ooxml",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "otf",
+    "group": "font",
+    "mime_type": "font/otf",
+    "description": "OpenType font",
+    "extensions": [
+      "otf"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "outlook",
+    "group": "application",
+    "mime_type": "application/vnd.ms-outlook",
+    "description": "MS Outlook Message",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "palmos",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "parquet",
+    "group": "unknown",
+    "mime_type": "application/vnd.apache.parquet",
+    "description": "Apache Parquet",
+    "extensions": [
+      "pqt",
+      "parquet"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "pascal",
+    "group": "code",
+    "mime_type": "text/x-pascal",
+    "description": "Pascal source",
+    "extensions": [
+      "pas",
+      "pp"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "pbm",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "pcap",
+    "group": "application",
+    "mime_type": "application/vnd.tcpdump.pcap",
+    "description": "pcap capture file",
+    "extensions": [
+      "pcap",
+      "pcapng"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "pdb",
+    "group": "application",
+    "mime_type": "application/octet-stream",
+    "description": "Windows Program Database",
+    "extensions": [
+      "pdb"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "pdf",
+    "group": "document",
+    "mime_type": "application/pdf",
+    "description": "PDF document",
+    "extensions": [
+      "pdf"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "pebin",
+    "group": "executable",
+    "mime_type": "application/x-dosexec",
+    "description": "PE Windows executable",
+    "extensions": [
+      "exe",
+      "dll"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "pem",
+    "group": "application",
+    "mime_type": "application/x-pem-file",
+    "description": "PEM certificate",
+    "extensions": [
+      "pem",
+      "pub",
+      "gpg"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "perl",
+    "group": "code",
+    "mime_type": "text/x-perl",
+    "description": "Perl source",
+    "extensions": [
+      "pl"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "pgp",
+    "group": null,
+    "mime_type": "application/pgp-keys",
+    "description": "PGP",
+    "extensions": [
+      "gpg",
+      "pgp"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "php",
+    "group": "code",
+    "mime_type": "text/x-php",
+    "description": "PHP source",
+    "extensions": [
+      "php"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "pickle",
+    "group": "application",
+    "mime_type": "application/octet-stream",
+    "description": "Python pickle",
+    "extensions": [
+      "pickle",
+      "pkl"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "png",
+    "group": "image",
+    "mime_type": "image/png",
+    "description": "PNG image",
+    "extensions": [
+      "png"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "po",
+    "group": "application",
+    "mime_type": "text/gettext-translation",
+    "description": "Portable Object (PO) for i18n",
+    "extensions": [
+      "po"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "postscript",
+    "group": "document",
+    "mime_type": "application/postscript",
+    "description": "PostScript document",
+    "extensions": [
+      "ps"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "powershell",
+    "group": "code",
+    "mime_type": "application/x-powershell",
+    "description": "Powershell source",
+    "extensions": [
+      "ps1"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "ppt",
+    "group": "document",
+    "mime_type": "application/vnd.ms-powerpoint",
+    "description": "Microsoft PowerPoint CDF document",
+    "extensions": [
+      "ppt"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "pptx",
+    "group": "document",
+    "mime_type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "description": "Microsoft PowerPoint 2007+ document",
+    "extensions": [
+      "pptx",
+      "pptm"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "printfox",
+    "group": null,
+    "mime_type": null,
+    "description": "c64",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "prolog",
+    "group": "code",
+    "mime_type": "text/x-prolog",
+    "description": "Prolog source",
+    "extensions": [
+      "pl",
+      "pro",
+      "P"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "proteindb",
+    "group": "application",
+    "mime_type": "application/octet-stream",
+    "description": "Protein DB",
+    "extensions": [
+      "pdb"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "proto",
+    "group": "code",
+    "mime_type": "text/x-proto",
+    "description": "Protocol buffer definition",
+    "extensions": [
+      "proto"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "protobuf",
+    "group": "unknown",
+    "mime_type": "application/protobuf",
+    "description": "Protocol buffers",
+    "extensions": [
+      "protobuf",
+      "pb"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "psd",
+    "group": "image",
+    "mime_type": "image/vnd.adobe.photoshop",
+    "description": "Adobe Photoshop",
+    "extensions": [
+      "psd"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "pytorch",
+    "group": "application",
+    "mime_type": "application/octet-stream",
+    "description": "Pytorch storage file",
+    "extensions": [
+      "pt",
+      "pth"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "pub",
+    "group": null,
+    "mime_type": "application/x-mspublisher",
+    "description": null,
+    "extensions": [
+      "pub"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "python",
+    "group": "code",
+    "mime_type": "text/x-python",
+    "description": "Python source",
+    "extensions": [
+      "py",
+      "pyi"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "pythonbytecode",
+    "group": "executable",
+    "mime_type": "application/x-bytecode.python",
+    "description": "Python compiled bytecode",
+    "extensions": [
+      "pyc",
+      "pyo"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "pythonpar",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "par"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "qoi",
+    "group": "image",
+    "mime_type": "image/x-qoi",
+    "description": "Quite Ok Image",
+    "extensions": [
+      "qoi"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "qt",
+    "group": "video",
+    "mime_type": "video/quicktime",
+    "description": "QuickTime",
+    "extensions": [
+      "mov"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "r",
+    "group": "code",
+    "mime_type": "text/x-R",
+    "description": "R (language)",
+    "extensions": [
+      "R"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "randomascii",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "Random ASCII characters",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "randombytes",
+    "group": "unknown",
+    "mime_type": "application/octet-stream",
+    "description": "Random bytes",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "randomtxt",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "Random text",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "rar",
+    "group": "archive",
+    "mime_type": "application/x-rar",
+    "description": "RAR archive data",
+    "extensions": [
+      "rar"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "rdf",
+    "group": "text",
+    "mime_type": "application/rdf+xml",
+    "description": "Resource Description Framework document (RDF)",
+    "extensions": [
+      "rdf"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "rdp",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "riff",
+    "group": null,
+    "mime_type": "application/x-riff",
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "rlib",
+    "group": "archive",
+    "mime_type": "application/x-archive",
+    "description": "rust library",
+    "extensions": [
+      "rlib"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "rll",
+    "group": "executable",
+    "mime_type": null,
+    "description": "Resource Library",
+    "extensions": [
+      "rll"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "rpm",
+    "group": "archive",
+    "mime_type": "application/x-rpm",
+    "description": "RedHat Package Manager archive (RPM)",
+    "extensions": [
+      "rpm"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "rst",
+    "group": "text",
+    "mime_type": "text/x-rst",
+    "description": "ReStructuredText document",
+    "extensions": [
+      "rst"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "rtf",
+    "group": "text",
+    "mime_type": "text/rtf",
+    "description": "Rich Text Format document",
+    "extensions": [
+      "rtf"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "ruby",
+    "group": "code",
+    "mime_type": "application/x-ruby",
+    "description": "Ruby source",
+    "extensions": [
+      "rb"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "rust",
+    "group": "code",
+    "mime_type": "application/x-rust",
+    "description": "Rust source",
+    "extensions": [
+      "rs"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "rzip",
+    "group": null,
+    "mime_type": null,
+    "description": "Rzip",
+    "extensions": [
+      "rz"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "scala",
+    "group": "code",
+    "mime_type": "application/x-scala",
+    "description": "Scala source",
+    "extensions": [
+      "scala"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "scheme",
+    "group": "code",
+    "mime_type": "text/x-scheme",
+    "description": null,
+    "extensions": [
+      "scm",
+      "ss"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "scr",
+    "group": "executable",
+    "mime_type": "application/x-dosexec",
+    "description": "PE Windows executable",
+    "extensions": [
+      "scr"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "scriptwsf",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "scss",
+    "group": "code",
+    "mime_type": "text/x-scss",
+    "description": "SCSS source",
+    "extensions": [
+      "scss"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "sevenzip",
+    "group": "archive",
+    "mime_type": "application/x-7z-compressed",
+    "description": "7-zip archive data",
+    "extensions": [
+      "7z"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "sgml",
+    "group": "text",
+    "mime_type": "application/sgml",
+    "description": "sgml",
+    "extensions": [
+      "sgml"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "sh3d",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "sh3d"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "shell",
+    "group": "code",
+    "mime_type": "text/x-shellscript",
+    "description": "Shell script",
+    "extensions": [
+      "sh"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "smali",
+    "group": "code",
+    "mime_type": "application/x-smali",
+    "description": "Smali source",
+    "extensions": [
+      "smali"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "snap",
+    "group": "archive",
+    "mime_type": "application/octet-stream",
+    "description": "Snap archive",
+    "extensions": [
+      "snap"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "so",
+    "group": "executable",
+    "mime_type": "application/x-executable-elf",
+    "description": "ELF executable, shared library",
+    "extensions": [
+      "so"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "solidity",
+    "group": "code",
+    "mime_type": null,
+    "description": "Solidity source",
+    "extensions": [
+      "sol"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "sql",
+    "group": "code",
+    "mime_type": "application/x-sql",
+    "description": "SQL source",
+    "extensions": [
+      "sql"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "sqlite",
+    "group": "application",
+    "mime_type": null,
+    "description": "SQLITE database",
+    "extensions": [
+      "sqlite",
+      "sqlite3"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "squashfs",
+    "group": "archive",
+    "mime_type": "application/octet-stream",
+    "description": "Squash filesystem",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "srt",
+    "group": "application",
+    "mime_type": "text/srt",
+    "description": "SubRip Text Format",
+    "extensions": [
+      "srt"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "stlbinary",
+    "group": "image",
+    "mime_type": "application/sla",
+    "description": "Stereolithography CAD (binary)",
+    "extensions": [
+      "stl"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "stltext",
+    "group": "image",
+    "mime_type": "application/sla",
+    "description": "Stereolithography CAD (text)",
+    "extensions": [
+      "stl"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "sum",
+    "group": "application",
+    "mime_type": null,
+    "description": "Checksum file",
+    "extensions": [
+      "sum"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "svd",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "svg",
+    "group": "image",
+    "mime_type": "image/svg+xml",
+    "description": "SVG Scalable Vector Graphics image data",
+    "extensions": [
+      "svg"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "swf",
+    "group": "executable",
+    "mime_type": "application/x-shockwave-flash",
+    "description": "Small Web File",
+    "extensions": [
+      "swf"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "swift",
+    "group": "code",
+    "mime_type": "text/x-swift",
+    "description": "Swift",
+    "extensions": [
+      "swift"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "symlink",
+    "group": "inode",
+    "mime_type": "inode/symlink",
+    "description": "Symbolic link",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "symlinktext",
+    "group": "application",
+    "mime_type": "text/plain",
+    "description": "Symbolic link (textual representation)",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "sys",
+    "group": "executable",
+    "mime_type": "application/x-windows-driver",
+    "description": "PE Windows executable",
+    "extensions": [
+      "sys"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "tar",
+    "group": "archive",
+    "mime_type": "application/x-tar",
+    "description": "POSIX tar archive",
+    "extensions": [
+      "tar"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "tcl",
+    "group": "code",
+    "mime_type": "application/x-tcl",
+    "description": "Tickle",
+    "extensions": [
+      "tcl"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "textproto",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Text protocol buffer",
+    "extensions": [
+      "textproto",
+      "textpb",
+      "pbtxt"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "tga",
+    "group": "image",
+    "mime_type": "image/x-tga",
+    "description": "Targa image data",
+    "extensions": [
+      "tga"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "thumbsdb",
+    "group": "application",
+    "mime_type": "image/vnd.ms-thumb",
+    "description": "Windows thumbnail cache",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "tiff",
+    "group": "image",
+    "mime_type": "image/tiff",
+    "description": "TIFF image data",
+    "extensions": [
+      "tiff",
+      "tif"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "tmdx",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "tmdx",
+      "tmvx"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "toml",
+    "group": "text",
+    "mime_type": "application/toml",
+    "description": "Tom's obvious, minimal language",
+    "extensions": [
+      "toml"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "torrent",
+    "group": "application",
+    "mime_type": "application/x-bittorrent",
+    "description": "BitTorrent file",
+    "extensions": [
+      "torrent"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "troff",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "tsv",
+    "group": "code",
+    "mime_type": "text/tsv",
+    "description": "TSV document",
+    "extensions": [
+      "tsv"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "tsx",
+    "group": "code",
+    "mime_type": "text/x-typescript",
+    "description": "TSX source",
+    "extensions": [
+      "tsx",
+      "mtsx",
+      "ctsx"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "ttf",
+    "group": "font",
+    "mime_type": "font/sfnt",
+    "description": "TrueType Font data",
+    "extensions": [
+      "ttf",
+      "ttc"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "twig",
+    "group": "code",
+    "mime_type": "text/x-twig",
+    "description": "Twig template",
+    "extensions": [
+      "twig"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "txt",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "Generic text document",
+    "extensions": [
+      "txt"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "txtascii",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "Generic text document encoded in ASCII",
+    "extensions": [
+      "txt"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "txtutf16",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "Generic text document encoded in UTF-16",
+    "extensions": [
+      "txt"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "txtutf8",
+    "group": "text",
+    "mime_type": "text/plain",
+    "description": "Generic text document encoded in UTF-8",
+    "extensions": [
+      "txt"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "typescript",
+    "group": "code",
+    "mime_type": "application/typescript",
+    "description": "TypeScript source",
+    "extensions": [
+      "ts",
+      "mts",
+      "cts"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "udf",
+    "group": null,
+    "mime_type": "application/x-udf-image",
+    "description": "Universal Disc Format",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "undefined",
+    "group": "undefined",
+    "mime_type": "application/undefined",
+    "description": "Undefined",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "unixcompress",
+    "group": null,
+    "mime_type": "application/x-compress",
+    "description": null,
+    "extensions": [
+      "z"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "unknown",
+    "group": "unknown",
+    "mime_type": "application/octet-stream",
+    "description": "Unknown binary data",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "vba",
+    "group": "code",
+    "mime_type": "text/vbscript",
+    "description": "MS Visual Basic source (VBA)",
+    "extensions": [
+      "vbs",
+      "vba",
+      "vb"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "vbe",
+    "group": "code",
+    "mime_type": null,
+    "description": "EncryptedVBS",
+    "extensions": [
+      "vbe"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "vcard",
+    "group": null,
+    "mime_type": "text/vcard",
+    "description": null,
+    "extensions": [
+      "vcard"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "vcs",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "vcxproj",
+    "group": "code",
+    "mime_type": "application/xml",
+    "description": "Visual Studio MSBuild project",
+    "extensions": [
+      "vcxproj"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "verilog",
+    "group": "code",
+    "mime_type": "text/x-verilog",
+    "description": "Verilog source",
+    "extensions": [
+      "v",
+      "verilog",
+      "vlg",
+      "vh"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "vhd",
+    "group": null,
+    "mime_type": "application/x-vhd",
+    "description": "Virtual Hard Disk",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "vhdl",
+    "group": "code",
+    "mime_type": "text/x-vhdl",
+    "description": "VHDL source",
+    "extensions": [
+      "vhd"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "visio",
+    "group": "document",
+    "mime_type": "application/vnd.ms-visio.drawing.main+xml",
+    "description": "Microsoft Visio",
+    "extensions": [
+      "vsd",
+      "vsdm",
+      "vsdx",
+      "vdw"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "vtt",
+    "group": "text",
+    "mime_type": "text/vtt",
+    "description": "Web Video Text Tracks",
+    "extensions": [
+      "vtt",
+      "webvtt"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "vue",
+    "group": "code",
+    "mime_type": "application/javascript",
+    "description": "Vue source",
+    "extensions": [
+      "vue"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "wad",
+    "group": "archive",
+    "mime_type": "application/wad",
+    "description": "WAD",
+    "extensions": [
+      "wad"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "wasm",
+    "group": "executable",
+    "mime_type": "application/wasm",
+    "description": "Web Assembly",
+    "extensions": [
+      "wasm"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "wav",
+    "group": "audio",
+    "mime_type": "audio/x-wav",
+    "description": "Waveform Audio file (WAV)",
+    "extensions": [
+      "wav"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "webm",
+    "group": "video",
+    "mime_type": "video/webm",
+    "description": "WebM media file",
+    "extensions": [
+      "webm"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "webp",
+    "group": "image",
+    "mime_type": "image/webp",
+    "description": "WebP media file",
+    "extensions": [
+      "webp"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "webtemplate",
+    "group": "code",
+    "mime_type": "text/plain",
+    "description": "Web templating language",
+    "extensions": [],
+    "is_text": true
+  },
+  {
+    "label": "wim",
+    "group": "unknown",
+    "mime_type": "application/x-ms-wim",
+    "description": "Windows Imaging Format",
+    "extensions": [
+      "wim",
+      "swm",
+      "esd"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "winregistry",
+    "group": "application",
+    "mime_type": "text/x-ms-regedit",
+    "description": "Windows Registry text",
+    "extensions": [
+      "reg"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "wma",
+    "group": "audio",
+    "mime_type": "audio/x-ms-wma",
+    "description": "Windows Media Audio",
+    "extensions": [
+      "wma"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "wmf",
+    "group": "image",
+    "mime_type": "image/wmf",
+    "description": "Windows metafile",
+    "extensions": [
+      "wmf"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "wmv",
+    "group": "video",
+    "mime_type": "video/x-ms-wmv",
+    "description": "Windows Media Video",
+    "extensions": [
+      "wmv"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "woff",
+    "group": "font",
+    "mime_type": "font/woff",
+    "description": "Web Open Font Format",
+    "extensions": [
+      "woff"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "woff2",
+    "group": "font",
+    "mime_type": "font/woff2",
+    "description": "Web Open Font Format v2",
+    "extensions": [
+      "woff2"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "xar",
+    "group": "archive",
+    "mime_type": "application/x-xar",
+    "description": "XAR archive compressed data",
+    "extensions": [
+      "pkg",
+      "xar"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "xcf",
+    "group": "image",
+    "mime_type": "image/x-xcf",
+    "description": "Gimp image",
+    "extensions": [
+      "xcf"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "xls",
+    "group": "document",
+    "mime_type": "application/vnd.ms-excel",
+    "description": "Microsoft Excel CDF document",
+    "extensions": [
+      "xls"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "xlsb",
+    "group": "document",
+    "mime_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "description": "Microsoft Excel 2007+ document (binary format)",
+    "extensions": [
+      "xlsb"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "xlsx",
+    "group": "document",
+    "mime_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "description": "Microsoft Excel 2007+ document",
+    "extensions": [
+      "xlsx",
+      "xlsm"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "xml",
+    "group": "code",
+    "mime_type": "text/xml",
+    "description": "XML document",
+    "extensions": [
+      "xml"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "xpi",
+    "group": "archive",
+    "mime_type": "application/zip",
+    "description": "Compressed installation archive (XPI)",
+    "extensions": [
+      "xpi"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "xsd",
+    "group": null,
+    "mime_type": null,
+    "description": null,
+    "extensions": [
+      "xsd"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "xz",
+    "group": "archive",
+    "mime_type": "application/x-xz",
+    "description": "XZ compressed data",
+    "extensions": [
+      "xz"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "yaml",
+    "group": "code",
+    "mime_type": "application/x-yaml",
+    "description": "YAML source",
+    "extensions": [
+      "yml",
+      "yaml"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "yara",
+    "group": "code",
+    "mime_type": "text/x-yara",
+    "description": "YARA rule",
+    "extensions": [
+      "yar",
+      "yara"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "zig",
+    "group": "code",
+    "mime_type": "text/zig",
+    "description": "Zig source",
+    "extensions": [
+      "zig"
+    ],
+    "is_text": true
+  },
+  {
+    "label": "zip",
+    "group": "archive",
+    "mime_type": "application/zip",
+    "description": "Zip archive data",
+    "extensions": [
+      "zip"
+    ],
+    "is_text": false
+  },
+  {
+    "label": "zlibstream",
+    "group": "application",
+    "mime_type": "application/zlib",
+    "description": "zlib compressed data",
+    "extensions": [],
+    "is_text": false
+  },
+  {
+    "label": "zst",
+    "group": "archive",
+    "mime_type": "application/zstd",
+    "description": "Zstandard",
+    "extensions": [
+      "zst"
+    ],
+    "is_text": false
+  }
+]

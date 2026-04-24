@@ -1,0 +1,12 @@
+magika-java
+
+Copyright 2026 Jonathan Putney
+
+Licensed under the Apache License, Version 2.0.
+
+This product bundles the `standard_v3_3` ONNX model and its configuration
+JSONs from github.com/google/magika (upstream commit
+363a44183a6f300d5d7143d94a19e6a841671650). See
+`dev/jcputney/magika/models/standard_v3_3/LICENSE` and
+`dev/jcputney/magika/models/standard_v3_3/NOTICE` on the classpath for
+upstream attribution and provenance.
