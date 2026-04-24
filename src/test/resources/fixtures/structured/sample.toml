@@ -1,0 +1,22 @@
+title = "magika-java-fixture"
+
+[package]
+name = "magika-java-fixture"
+version = "0.1.0"
+authors = ["Jonathan Putney <jonathan@putney.io>"]
+license = "Apache-2.0"
+
+[dependencies]
+onnxruntime = "1.25.0"
+jackson = "2.21.2"
+
+[[targets]]
+name = "parity-harness"
+kind = "test"
+
+[[targets]]
+name = "concurrency"
+kind = "test"
+
+[build]
+rustflags = ["-C", "opt-level=3"]

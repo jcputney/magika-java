@@ -1,0 +1,6 @@
+id,name,category,value,is_active
+1,alpha,code,3.14,true
+2,bravo,text,2.71,false
+3,charlie,image,1.41,true
+4,delta,archive,1.73,true
+5,echo,document,2.23,false

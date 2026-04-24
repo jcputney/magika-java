@@ -1,0 +1,15 @@
+{
+  "dl": {
+    "label": "randombytes",
+    "overwriteReason": "NONE",
+    "score": 0.9999393224716187
+  },
+  "output": {
+    "label": "unknown",
+    "overwriteReason": "OVERWRITE_MAP",
+    "score": 0.9999393224716187
+  },
+  "score": 0.9999393224716187,
+  "upstream_magika_git_sha": "363a44183a6f300d5d7143d94a19e6a841671650",
+  "upstream_magika_version": "1.0.2"
+}

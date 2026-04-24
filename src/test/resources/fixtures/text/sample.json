@@ -1,0 +1,20 @@
+{
+  "name": "magika-java-fixture",
+  "version": "0.1.0",
+  "description": "Sample JSON fixture for parity testing.",
+  "keywords": ["fixture", "parity", "json"],
+  "author": {
+    "name": "Jonathan Putney",
+    "email": "jonathan@putney.io"
+  },
+  "dependencies": {
+    "onnxruntime": "1.25.0",
+    "jackson-databind": "2.21.2"
+  },
+  "license": "Apache-2.0",
+  "nested": {
+    "numbers": [1, 2, 3, 4, 5],
+    "flag": true,
+    "absent": null
+  }
+}
