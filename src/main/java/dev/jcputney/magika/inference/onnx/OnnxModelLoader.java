@@ -38,17 +38,17 @@ import org.slf4j.LoggerFactory;
  * {@code docs/algorithm-notes.md} §Model SHA-256 — any drift fails the loader at startup with
  * {@link ModelLoadException}.
  */
-final class OnnxModelLoader {
+public final class OnnxModelLoader {
 
   /**
-   * Logger is keyed on the eventual public {@code dev.jcputney.magika.Magika} facade (Plan 5); the
-   * class literal is not available here yet, so the string name is used. Consumer log-config hooks
-   * "dev.jcputney.magika" and catches the ERROR on SHA mismatch (D-11).
+   * Logger is keyed on the public {@code dev.jcputney.magika.Magika} facade (Plan 5) so the
+   * ERROR-on-SHA-mismatch log event lands on the same logger as the other D-11 events. Consumer
+   * log-config hooks {@code dev.jcputney.magika} and catches the ERROR on SHA mismatch (D-11).
    */
   private static final Logger LOGGER = LoggerFactory.getLogger("dev.jcputney.magika.Magika");
 
   /** Absolute classpath path to the bundled model (D-01 vendoring target). */
-  static final String MODEL_RESOURCE =
+  public static final String MODEL_RESOURCE =
     "/dev/jcputney/magika/models/standard_v3_3/model.onnx";
 
   /**
@@ -56,7 +56,7 @@ final class OnnxModelLoader {
    * {@code 363a44183a6f300d5d7143d94a19e6a841671650}. Mirrors {@code docs/MODEL_CARD.md} and
    * {@code docs/algorithm-notes.md} §Model SHA-256; all three must match.
    */
-  static final String EXPECTED_SHA256 =
+  public static final String EXPECTED_SHA256 =
     "fe2d2eb49c5f88a9e0a6c048e15d6ffdf86235519c2afc535044de433169ec8c";
 
   private OnnxModelLoader() {
@@ -72,7 +72,7 @@ final class OnnxModelLoader {
    * @throws ModelLoadException if the resource is missing, unreadable, or the SHA-256 does not
    *                            match
    */
-  static byte[] loadAndVerify() {
+  public static byte[] loadAndVerify() {
     byte[] bytes;
     try (InputStream in = OnnxModelLoader.class.getResourceAsStream(MODEL_RESOURCE)) {
       if (in == null) {
@@ -92,7 +92,7 @@ final class OnnxModelLoader {
   }
 
   /** Compute the SHA-256 digest of the given bytes as lowercase hex. */
-  static String computeSha256(byte[] bytes) {
+  public static String computeSha256(byte[] bytes) {
     try {
       MessageDigest md = MessageDigest.getInstance("SHA-256");
       return HexFormat.of().formatHex(md.digest(bytes));
