@@ -16,3 +16,16 @@ CI note (CI-01): GitHub Actions matrix uses `fail-fast: false` so one
 leg's failure does not mask the others. Branch-protection "required
 checks" configuration is a human-operated step after CI lands in Plan 6
 — documented but not enforced by the build.
+
+## CI branch protection (manual)
+
+After `ci.yml` lands and runs green on `main`, enable branch protection
+with these checks as "required":
+
+- `CI / verify (ubuntu-latest)`
+- `CI / verify (macos-latest)`
+- `CI / verify (windows-latest)`
+
+All three must pass before merge to `main`. This is a one-time manual
+step on https://github.com/jcputney/magika-java/settings/branches —
+the workflow itself does not enforce it (per CI-01 note).

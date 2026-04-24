@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    strategy:
+      # CI-01 note: fail-fast disabled so one OS failing does NOT mask
+      # failures on the other two legs — important for catching
+      # platform-specific parity drift.
+      fail-fast: false
+      matrix:
+        # CI-01: the three locked OS legs.
+        # CI-02: Intel Mac (older macos-<version> runners) intentionally
+        # EXCLUDED — ORT 1.25.0 dropped osx-x64.
+        # Implicit: windows arm (win-aarch64 runners) intentionally
+        # EXCLUDED — ORT never shipped win-aarch64.
+        # CI-03 / CI-04: Linux aarch64 and Alpine/musl are documented as
+        # unsupported in README — no CI leg.
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+
+      - name: Verify (compile + unit + parity + archunit + spotless + license)
+        run: mvn -B -ntp verify
+
+      - name: Upload failsafe reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failsafe-reports-${{ runner.os }}
+          path: target/failsafe-reports/
+          retention-days: 7
