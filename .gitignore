@@ -1,0 +1,27 @@
+# GSD planning artifacts — local-only by user preference
+.planning/
+
+# Java / Maven build output
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+replay_pid*
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+nbproject/private/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# OS
+.DS_Store
+Thumbs.db
