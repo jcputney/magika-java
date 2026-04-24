@@ -96,6 +96,12 @@
             <version>${version.archunit}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${version.slf4j}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -121,6 +127,10 @@
                 <configuration>
                     <groups>unit</groups>
                     <excludedGroups>parity,slow</excludedGroups>
+                    <systemPropertyVariables>
+                        <org.slf4j.simpleLogger.defaultLogLevel>info</org.slf4j.simpleLogger.defaultLogLevel>
+                        <org.slf4j.simpleLogger.showDateTime>false</org.slf4j.simpleLogger.showDateTime>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
@@ -137,6 +147,14 @@
                 </executions>
                 <configuration>
                     <groups>parity</groups>
+                    <includes>
+                        <include>**/*IT.java</include>
+                        <include>**/MagikaLoggingTest.java</include>
+                    </includes>
+                    <systemPropertyVariables>
+                        <org.slf4j.simpleLogger.defaultLogLevel>info</org.slf4j.simpleLogger.defaultLogLevel>
+                        <org.slf4j.simpleLogger.showDateTime>false</org.slf4j.simpleLogger.showDateTime>
+                    </systemPropertyVariables>
                 </configuration>
             </plugin>
             <plugin>
