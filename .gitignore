@@ -10,6 +10,8 @@ target/
 *.nar
 hs_err_pid*
 replay_pid*
+.flattened-pom.xml
+dependency-reduced-pom.xml
 
 # IDE
 .idea/
