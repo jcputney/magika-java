@@ -1,6 +1,7 @@
 # Parity fixtures
 
-26 upstream-anchored fixtures for the `UpstreamParityIT` parity harness.
+35 upstream-anchored fixtures for the `UpstreamParityIT` parity harness
+(30 v0.1 + 5 added in Plan 02-02 for TEST-11/12/13).
 Every fixture has clear Apache 2.0 or public-domain provenance; every
 fixture has a sibling `<name>.<ext>.expected.json` file generated from
 the pinned upstream Magika Python package.
@@ -66,6 +67,43 @@ checked-in script (project rule: no helper scripts / CLI utilities).
 4. Update `ORACLE_VERSION` if the pin changed.
 5. Run `mvn -B -ntp verify` on all three CI legs before committing.
 
+### Non-default prediction modes (TEST-12 / TEST-13)
+
+For fixtures that exercise non-default prediction modes, instantiate `Magika`
+with the `prediction_mode` kwarg before identifying the fixture bytes. The
+pinned upstream `magika==1.0.2` accepts the `PredictionMode` enum directly
+(verified: `inspect.signature(Magika.__init__)` exposes `prediction_mode`):
+
+```python
+from magika import Magika, PredictionMode
+
+# MEDIUM_CONFIDENCE (TEST-12)
+m = Magika(prediction_mode=PredictionMode.MEDIUM_CONFIDENCE)
+r = m.identify_path(fixture_path)
+
+# BEST_GUESS (TEST-13)
+m = Magika(prediction_mode=PredictionMode.BEST_GUESS)
+r = m.identify_path(fixture_path)
+```
+
+The result shape is identical to default-mode invocation
+(`r.prediction.dl`, `r.prediction.output`, `r.prediction.overwrite_reason`,
+`r.prediction.score`). The sidecar carries the mode-specific result; the
+Java side selects the matching `Magika` singleton (`MAGIKA_MEDIUM` or
+`MAGIKA_BEST` in `UpstreamParityIT`) by filename prefix
+(`medium-confidence-*` and `best-guess-*` respectively).
+
+For mode-divergent fixtures, sanity-check that the SAME bytes produce a
+DIFFERENT `output.label` (or `output.overwriteReason`) when run under
+HIGH mode — otherwise the fixture is not actually exercising the mode it
+claims (Pitfall 5 in `02-RESEARCH.md`). Example output for
+`medium-confidence-1.bin`:
+
+```
+MEDIUM: dl=ignorefile output=ignorefile reason=none score=0.7463
+HIGH:   dl=ignorefile output=txt        reason=low_confidence score=0.7463  <-- diverges
+```
+
 ## Per-fixture provenance
 
 | Fixture | Source | License | Dimensions exercised |
@@ -100,6 +138,11 @@ checked-in script (project rule: no helper scripts / CLI utilities).
 | `edge/stream-one-text-byte.txt` | 0x41 ('A') | Public domain | **CR-01 regression** — `identifyStream(N=1, valid UTF-8)` must hit small-file branch (TXT) |
 | `edge/stream-seven-bytes.bin` | 7 invalid-UTF-8 bytes (`FF C0 80 81 FE C1 FD`) | Public domain | **CR-01 regression** — `identifyStream(N=7, invalid UTF-8)` must hit small-file branch (UNKNOWN) |
 | `edge/path-leading-whitespace.txt` | 1024 spaces + `AB` (1026 bytes) | Public domain | **CR-02 regression** — N&gt;=min_file_size_for_dl but stripped beg has &lt;8 real tokens; algorithm-notes §"Small-file branches" row 3 — model NOT invoked, output=TXT |
+| `edge/randomtxt.bin` | 256 alnum bytes from deterministic Python `Random(20260425)` over `string.ascii_letters + string.digits`; landed on `dl.label="randomtxt"` under pinned oracle. Do NOT regenerate — bytes pinned. | Public domain | **TEST-11 (Plan 02-02)**: overwrite-map (`randomtxt → txt`, OVERWRITE_MAP) under HIGH mode — makes the OVERWRITE_MAP signal load-bearing in `assertParity` |
+| `edge/medium-confidence-1.bin` | 18 bytes `# comment\nfoo.bak\n` (handwritten `.gitignore`-shaped fragment); pinned oracle scores `dl=ignorefile @ 0.7463` | Public domain | **TEST-12 #1 (Plan 02-02)**: MEDIUM_CONFIDENCE keeps `output=ignorefile NONE`; under HIGH the same bytes fall back to `output=txt LOW_CONFIDENCE` (per-type ignorefile threshold = 0.95) |
+| `edge/medium-confidence-2.bin` | 24 bytes `let f x = x + 1;;\nf 5;;\n` (handwritten OCaml fragment); pinned oracle scores `dl=ocaml @ 0.6267` | Public domain | **TEST-12 #2 (Plan 02-02)**: MEDIUM_CONFIDENCE keeps `output=ocaml NONE`; under HIGH the same bytes fall back to `output=txt LOW_CONFIDENCE` (per-type ocaml threshold = 0.9) |
+| `edge/best-guess-1.bin` | 14 bytes `void main(){}\n` (Dart-shaped fragment, intentionally too short for confident classification); pinned oracle scores `dl=dart @ 0.1608` | Public domain | **TEST-13 #1 (Plan 02-02)**: BEST_GUESS keeps `output=dart NONE` (threshold 0.0); under HIGH the same bytes fall back to `output=txt LOW_CONFIDENCE` |
+| `edge/best-guess-2.bin` | 12 bytes `192.168.0.1\n` (single IP-address line); pinned oracle scores `dl=csv @ 0.1888` | Public domain | **TEST-13 #2 (Plan 02-02)**: BEST_GUESS keeps `output=csv NONE` (threshold 0.0); under HIGH the same bytes fall back to `output=txt LOW_CONFIDENCE` |
 
 ## Dimension coverage summary
 
@@ -110,9 +153,9 @@ Maps to `01-VALIDATION.md` §"Validation Dimensions":
 - **Tail-signal:** zip (EOCD), tar (trailer), pdf (xref) — all present.
 - **UTF-8 boundary:** valid (most text) vs invalid (`edge/one-ff.bin`).
 - **lstrip byte set:** `edge/one-space.txt` (strips), `edge/nbsp-prefix.txt` (NBSP does NOT strip — Pitfall 3 regression).
-- **Overwrite map:** `edge/random-bytes.bin` → `randombytes` overwritten to `unknown` with `OVERWRITE_MAP`. (`randomtxt` is the other map entry but requires a specific byte pattern not trivial to construct; random-bytes covers the ordering regression.)
+- **Overwrite map:** `edge/random-bytes.bin` (`randombytes → unknown`, OVERWRITE_MAP) and `edge/randomtxt.bin` (`randomtxt → txt`, OVERWRITE_MAP — Plan 02-02 TEST-11). Both overwrite-map entries from `config.min.json` now have a parity fixture.
 - **Threshold branches:** `edge/at-threshold.bin` and `edge/nbsp-prefix.txt` land LOW_CONFIDENCE (score < per-type threshold, output falls back to `txt`).
-- **Prediction mode:** default HIGH_CONFIDENCE is exercised by every fixture. MEDIUM_CONFIDENCE / BEST_GUESS are not separately fixtured in this plan — per 01-CONTEXT.md Claude's Discretion, prediction-mode plumbing is unit-tested in `LabelResolverTest` (Plan 3) and the parity harness focuses on the default mode. If a future parity gap points at mode semantics, add a MEDIUM_CONFIDENCE-regenerated fixture.
+- **Prediction mode:** Plan 02-02 (TEST-12 / TEST-13) added 4 mode-divergent fixtures (`edge/medium-confidence-{1,2}.bin` under MEDIUM_CONFIDENCE; `edge/best-guess-{1,2}.bin` under BEST_GUESS). The remaining 30 v0.1 fixtures plus `edge/randomtxt.bin` exercise default HIGH_CONFIDENCE. `UpstreamParityIT` exposes three Magika singletons (`MAGIKA_HIGH`, `MAGIKA_MEDIUM`, `MAGIKA_BEST`) and routes fixtures by filename prefix.
 
 ## Flags / caveats
 
@@ -120,6 +163,15 @@ Maps to `01-VALIDATION.md` §"Validation Dimensions":
   Do **NOT** regenerate with a different seed; the sidecar is pinned to
   these exact bytes. If the seed ever changes, the sidecar score will
   drift and parity will break on a "same fixture, different bytes" bug.
+
+- `edge/randomtxt.bin` — 256 frozen alnum bytes from deterministic seed
+  20260425 over `string.ascii_letters + string.digits` (Plan 02-02 TEST-11).
+  Do **NOT** regenerate with a different seed or a different character set:
+  the upstream model only classifies a narrow band of high-entropy text
+  shapes as `randomtxt` (full `string.printable` lands as `randombytes`;
+  alnum lands as `randomtxt`). The sidecar is pinned to these exact bytes;
+  reseeding will drift the score and likely flip `dl.label` to a different
+  class (verified during fixture authoring — see Plan 02-02 SUMMARY).
 
 - `archives/sample.zip` and `documents/sample.pdf` — the
   `UpstreamParityIT.identifyStreamExercised_zip_tail_signal` and
