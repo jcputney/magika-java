@@ -96,6 +96,9 @@ checked-in script (project rule: no helper scripts / CLI utilities).
 | `edge/one-space.txt` | 0x20 | Public domain | lstrip (single space → strips to empty) |
 | `edge/nbsp-prefix.txt` | NBSP (0xC2 0xA0) + "hello world\n" | Public domain | lstrip (NBSP must NOT strip), LOW_CONFIDENCE path |
 | `edge/random-bytes.bin` | 64 bytes from deterministic Python `Random(20260424)` | Public domain | overwrite-map (randombytes → unknown, OVERWRITE_MAP) |
+| `edge/stream-empty.bin` | 0 bytes | Public domain | **CR-01 regression** — `identifyStream(empty)` must hit small-file branch (EMPTY) |
+| `edge/stream-one-text-byte.txt` | 0x41 ('A') | Public domain | **CR-01 regression** — `identifyStream(N=1, valid UTF-8)` must hit small-file branch (TXT) |
+| `edge/stream-seven-bytes.bin` | 7 invalid-UTF-8 bytes (`FF C0 80 81 FE C1 FD`) | Public domain | **CR-01 regression** — `identifyStream(N=7, invalid UTF-8)` must hit small-file branch (UNKNOWN) |
 
 ## Dimension coverage summary
 

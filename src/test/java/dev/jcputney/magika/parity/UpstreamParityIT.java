@@ -125,6 +125,45 @@ class UpstreamParityIT {
   }
 
   /**
+   * CR-01 regression: {@code identifyStream} on a 0-byte stream MUST hit the small-file branch
+   * (EMPTY sentinel) instead of running the model on all-padding tokens.
+   */
+  @Test
+  void identifyStreamExercised_empty_stream_small_file_branch() throws IOException {
+    Path empty = FIXTURES_ROOT.resolve("edge/stream-empty.bin");
+    try (InputStream in = Files.newInputStream(empty)) {
+      MagikaResult r = MAGIKA.identifyStream(in);
+      assertParity(empty, r);
+    }
+  }
+
+  /**
+   * CR-01 regression: {@code identifyStream} on a 1-byte UTF-8-valid stream MUST return the
+   * UNDEFINED+TXT small-file sentinel (N &lt; min_file_size_for_dl, decode succeeds).
+   */
+  @Test
+  void identifyStreamExercised_one_text_byte_small_file_branch() throws IOException {
+    Path oneByte = FIXTURES_ROOT.resolve("edge/stream-one-text-byte.txt");
+    try (InputStream in = Files.newInputStream(oneByte)) {
+      MagikaResult r = MAGIKA.identifyStream(in);
+      assertParity(oneByte, r);
+    }
+  }
+
+  /**
+   * CR-01 regression: {@code identifyStream} on a 7-byte non-UTF-8 stream MUST return the
+   * UNDEFINED+UNKNOWN small-file sentinel (N &lt; min_file_size_for_dl, decode fails).
+   */
+  @Test
+  void identifyStreamExercised_seven_invalid_utf8_bytes_small_file_branch() throws IOException {
+    Path seven = FIXTURES_ROOT.resolve("edge/stream-seven-bytes.bin");
+    try (InputStream in = Files.newInputStream(seven)) {
+      MagikaResult r = MAGIKA.identifyStream(in);
+      assertParity(seven, r);
+    }
+  }
+
+  /**
    * The parity comparator — strict equality on both labels, {@code 1e-4} tolerance on score.
    * Failure messages carry enough context to debug without re-reading the fixture or sidecar.
    */

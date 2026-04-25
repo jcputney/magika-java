@@ -27,7 +27,6 @@ import dev.jcputney.magika.io.ByteWindowExtractor;
 import dev.jcputney.magika.io.BytesInput;
 import dev.jcputney.magika.io.InputSource;
 import dev.jcputney.magika.io.PathInput;
-import dev.jcputney.magika.io.StreamInput;
 import dev.jcputney.magika.postprocess.ContentTypeLabel;
 import dev.jcputney.magika.postprocess.FallbackLogic;
 import dev.jcputney.magika.postprocess.LabelResolver;
@@ -213,7 +212,20 @@ public final class Magika implements AutoCloseable {
   public MagikaResult identifyStream(InputStream stream) {
     Objects.requireNonNull(stream, "stream");
     checkOpen();
-    return identifyInternal(new StreamInput(stream), null, -1);
+    // CR-01 fix: materialize the stream into a byte[] BEFORE entering identifyInternal so the
+    // small-file short-circuit (Pitfall 4 / POST-03) fires for empty / N<min_file_size_for_dl
+    // streams. Without this, an empty or 1..7-byte stream would skip the smallBuffer guard
+    // (smallBuffer was null for the stream path) and run the model on all-padding tokens —
+    // disagreeing with upstream Python which returns the EMPTY / TXT / UNKNOWN sentinel without
+    // invoking the model. D-09 still holds: ByteWindowExtractor.buildFromStream also buffers to
+    // EOF, but the small-file branch is post-strip-aware via knownLength.
+    byte[] buffered;
+    try {
+      buffered = stream.readAllBytes();
+    } catch (IOException e) {
+      throw new InvalidInputException("failed to read stream", e);
+    }
+    return identifyInternal(new BytesInput(buffered), buffered, buffered.length);
   }
 
   /** Returns the bundled model name (API-12). */
