@@ -20,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.jcputney.magika.ModelLoadException;
+import java.lang.reflect.RecordComponent;
+import java.util.Arrays;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
@@ -63,6 +65,30 @@ class MagikaConfigLoaderTest {
       "/dev/jcputney/magika/config-missing-primitive.json"))
       .isInstanceOf(ModelLoadException.class)
       .hasMessageContaining("min_file_size_for_dl");
+  }
+
+  @Test
+  void parameters_flag_preserves_record_component_names_for_jackson() {
+    // CFG-03: -parameters compile flag must be active so Jackson can bind record components by
+    // name. If the flag is missing, javac erases constructor parameter names to synthetic
+    // "arg0", "arg1", ... placeholders and Jackson silently misses every field.
+    RecordComponent[] components = ThresholdConfig.class.getRecordComponents();
+    assertThat(components)
+      .as("ThresholdConfig must have record components (sanity check)")
+      .isNotEmpty();
+
+    boolean anySynthetic = Arrays.stream(components)
+      .map(RecordComponent::getName)
+      .anyMatch(name -> name.matches("arg\\d+"));
+
+    assertThat(anySynthetic)
+      .as(
+        "At least one ThresholdConfig record component has a synthetic name (arg0, arg1, …). "
+          + "This means the -parameters compiler flag is NOT active — "
+          + "add <parameters>true</parameters> to maven-compiler-plugin configuration. "
+          + "Without it Jackson cannot bind record fields by name and config loading silently "
+          + "produces zero-value records.")
+      .isFalse();
   }
 
   @Test

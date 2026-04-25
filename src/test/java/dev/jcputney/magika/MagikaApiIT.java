@@ -20,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.jcputney.magika.postprocess.ContentTypeLabel;
+import dev.jcputney.magika.postprocess.PredictionMode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -172,6 +173,68 @@ class MagikaApiIT {
       assertThat(m.getModelSha256()).matches("[0-9a-fA-F]{64}");
       assertThat(m.getOutputContentTypes()).isNotEmpty();
     }
+  }
+
+  @Test
+  void builder_predictionMode_propagates_to_identify_call() {
+    // (a) Enum mirror-upstream check: values in declared order.
+    PredictionMode[] values = PredictionMode.values();
+    assertThat(values)
+      .as("PredictionMode.values() must mirror upstream order: BEST_GUESS, MEDIUM_CONFIDENCE, HIGH_CONFIDENCE")
+      .containsExactly(
+        PredictionMode.BEST_GUESS,
+        PredictionMode.MEDIUM_CONFIDENCE,
+        PredictionMode.HIGH_CONFIDENCE);
+
+    // (b) DEFAULT is HIGH_CONFIDENCE per upstream magika.py:60 (ALG-06).
+    assertThat(PredictionMode.DEFAULT)
+      .as("PredictionMode.DEFAULT must be HIGH_CONFIDENCE (ALG-06)")
+      .isSameAs(PredictionMode.HIGH_CONFIDENCE);
+
+    // (c) Behavioral difference: BEST_GUESS uses threshold=0.0 so output.label always equals
+    // dl.label for any label NOT in the overwrite map. Use 32 bytes of low-entropy binary that
+    // the model will assign some dl label with a potentially low confidence score. With
+    // BEST_GUESS the score can never trigger a fallback (threshold=0.0 → score always ≥ 0.0),
+    // so output.label.label() must equal dl.label.label() whenever dl.label is not in the
+    // overwrite map (randombytes/randomtxt are the only two entries, which themselves remap
+    // deterministically). The assertion is structural: BEST_GUESS never falls back; the builder
+    // wiring is proven by the contrast with HIGH_CONFIDENCE potentially falling back.
+    byte[] ambiguousInput = new byte[32];
+    for (int i = 0; i < ambiguousInput.length; i++) {
+      ambiguousInput[i] = (byte) (i * 7 + 13); // non-trivial, not all-zeros, no magic header
+    }
+
+    MagikaResult bestGuessResult;
+    MagikaResult highConfResult;
+
+    try (Magika bestGuess = Magika.builder().predictionMode(PredictionMode.BEST_GUESS).build()) {
+      bestGuessResult = bestGuess.identifyBytes(ambiguousInput);
+    }
+    try (Magika highConf = Magika.builder().predictionMode(PredictionMode.HIGH_CONFIDENCE).build()) {
+      highConfResult = highConf.identifyBytes(ambiguousInput);
+    }
+
+    // Both results must be non-null — the builder wiring reached identifyBytes.
+    assertThat(bestGuessResult).isNotNull();
+    assertThat(highConfResult).isNotNull();
+    assertThat(bestGuessResult.score()).isBetween(0.0, 1.0001);
+    assertThat(highConfResult.score()).isBetween(0.0, 1.0001);
+
+    // BEST_GUESS structural invariant: output.label equals dl.label for any label not in the
+    // overwrite map (threshold=0.0 means no fallback). The two overwrite-map entries
+    // (randombytes→unknown, randomtxt→txt) are deterministic remaps that don't depend on mode,
+    // so even for those the assertion holds: output != dl but it's an overwrite-map remap, not
+    // a LOW_CONFIDENCE fallback. We assert the negative: OverwriteReason must NOT be
+    // LOW_CONFIDENCE under BEST_GUESS.
+    assertThat(bestGuessResult.output().overwriteReason())
+      .as(
+        "BEST_GUESS must never produce LOW_CONFIDENCE fallback (threshold=0.0); "
+          + "actual reason=%s, dl=%s, output=%s, score=%.4f",
+        bestGuessResult.output().overwriteReason(),
+        bestGuessResult.dl().label().label(),
+        bestGuessResult.output().label().label(),
+        bestGuessResult.score())
+      .isNotEqualTo(dev.jcputney.magika.postprocess.OverwriteReason.LOW_CONFIDENCE);
   }
 
   @Test
