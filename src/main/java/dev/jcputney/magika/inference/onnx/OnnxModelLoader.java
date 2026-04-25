@@ -116,22 +116,7 @@ public final class OnnxModelLoader {
    *                            match
    */
   public static byte[] loadAndVerify() {
-    byte[] bytes;
-    try (InputStream in = OnnxModelLoader.class.getResourceAsStream(MODEL_RESOURCE)) {
-      if (in == null) {
-        throw new ModelLoadException("bundled model missing from classpath: " + MODEL_RESOURCE);
-      }
-      bytes = in.readAllBytes();
-    } catch (IOException e) {
-      throw new ModelLoadException("failed to read bundled model: " + MODEL_RESOURCE, e);
-    }
-    String actual = computeSha256(bytes);
-    if (!actual.equalsIgnoreCase(EXPECTED_SHA256)) {
-      LOGGER.error("model SHA-256 mismatch: expected={} actual={}", EXPECTED_SHA256, actual);
-      throw new ModelLoadException(
-        "model SHA-256 mismatch: expected " + EXPECTED_SHA256 + " got " + actual);
-    }
-    return bytes;
+    return load().bytes();
   }
 
   /** Compute the SHA-256 digest of the given bytes as lowercase hex. */
