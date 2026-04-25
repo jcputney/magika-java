@@ -73,6 +73,16 @@ public final class LabelResolver {
     }
 
     // Step 5: if output matches dl, reset reason to NONE (never leak a spurious signal).
+    // (IN-04) Fixture coverage gap recorded: no v0.1 fixture exercises the
+    // LOW_CONFIDENCE → NONE override path (the genuine reset). That path requires
+    // dl.label ∈ {"txt", "unknown"} AND score < threshold; the current 35-fixture
+    // suite has no such input. The fixtures whose sidecars hit this branch
+    // (medium-confidence-{1,2}, best-guess-{1,2}) all enter step 5 with reason
+    // already NONE because step 4's threshold check did not fire (score ≥ MEDIUM
+    // 0.5 threshold, or BEST_GUESS threshold = 0.0) — so step 5 is a no-op
+    // there, not an override. Adding a fixture to exercise the override path is
+    // tracked for a future phase; the contract is locked by upstream parity, not
+    // by a Java fixture today.
     if (outputLabelString.equals(dlLabelString)) {
       reason = OverwriteReason.NONE;
     }
