@@ -164,6 +164,19 @@ class UpstreamParityIT {
   }
 
   /**
+   * CR-02 regression: a path with N &gt;= min_file_size_for_dl whose leading whitespace strips the
+   * beg window down to fewer than min_file_size_for_dl real tokens MUST hit the post-token
+   * "stripped content too short" branch (algorithm-notes §"Small-file branches" row 3) — model is
+   * not invoked, dl=UNDEFINED, output=TXT (raw unstripped leading block decodes as valid UTF-8).
+   */
+  @Test
+  void identifyPathExercised_leading_whitespace_post_token_short_branch() throws IOException {
+    Path fixture = FIXTURES_ROOT.resolve("edge/path-leading-whitespace.txt");
+    MagikaResult r = MAGIKA.identifyPath(fixture);
+    assertParity(fixture, r);
+  }
+
+  /**
    * The parity comparator — strict equality on both labels, {@code 1e-4} tolerance on score.
    * Failure messages carry enough context to debug without re-reading the fixture or sidecar.
    */

@@ -99,6 +99,7 @@ checked-in script (project rule: no helper scripts / CLI utilities).
 | `edge/stream-empty.bin` | 0 bytes | Public domain | **CR-01 regression** — `identifyStream(empty)` must hit small-file branch (EMPTY) |
 | `edge/stream-one-text-byte.txt` | 0x41 ('A') | Public domain | **CR-01 regression** — `identifyStream(N=1, valid UTF-8)` must hit small-file branch (TXT) |
 | `edge/stream-seven-bytes.bin` | 7 invalid-UTF-8 bytes (`FF C0 80 81 FE C1 FD`) | Public domain | **CR-01 regression** — `identifyStream(N=7, invalid UTF-8)` must hit small-file branch (UNKNOWN) |
+| `edge/path-leading-whitespace.txt` | 1024 spaces + `AB` (1026 bytes) | Public domain | **CR-02 regression** — N&gt;=min_file_size_for_dl but stripped beg has &lt;8 real tokens; algorithm-notes §"Small-file branches" row 3 — model NOT invoked, output=TXT |
 
 ## Dimension coverage summary
 

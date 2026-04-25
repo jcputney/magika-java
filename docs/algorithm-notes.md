@@ -334,6 +334,22 @@ is what `_get_result_from_few_bytes` sets at `magika.py:774-784`. The score
 value itself is mostly a sentinel on these branches; the `output.label`
 carries the information.
 
+**Row-3 detection point and decode-input clarification.** Row 3 is detected
+**after feature extraction** by inspecting the assembled token array — the
+condition is `tokens[min_file_size_for_dl - 1] == padding_token` (i.e. fewer
+than `min_file_size_for_dl` real bytes survived the lstrip applied during
+beg-window construction). This is checked in `Magika.identifyInternal` after
+`ByteWindowExtractor.extract(...)` returns, NOT inside `FallbackLogic.smallFileBranch`
+which only sees raw bytes (no token information).
+
+The TXT-vs-UNKNOWN decision in row 3 is made by strict-mode UTF-8 decode of
+**the raw unstripped leading block** — `seekable.read_at(0, min(N, block_size))`
+in Python (`magika.py:760-763`), which calls `_get_result_from_few_bytes` →
+`_get_label_from_few_bytes` → `content.decode("utf-8")` on those raw bytes.
+A Java implementation that decodes the stripped bytes instead silently
+disagrees with upstream on inputs whose post-strip content is valid UTF-8
+but whose unstripped leading block is not (or vice versa).
+
 A worked example for `N` in `[8, block_size)` follows below; it fixes the
 end-window reference point that is the non-obvious parity-critical fact for
 Plan 3's `ByteWindowExtractor`.

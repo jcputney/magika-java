@@ -33,6 +33,7 @@ import dev.jcputney.magika.postprocess.LabelResolver;
 import dev.jcputney.magika.postprocess.OverwriteReason;
 import dev.jcputney.magika.postprocess.PredictionMode;
 import dev.jcputney.magika.postprocess.ResolvedLabels;
+import dev.jcputney.magika.postprocess.Utf8Validator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -301,6 +302,29 @@ public final class Magika implements AutoCloseable {
       throw new InvalidInputException("failed to extract window", e);
     }
 
+    // CR-02 / algorithm-notes §"Small-file branches" row 3 (magika.py:756-770):
+    // Even when N >= min_file_size_for_dl, if the post-strip beg window has fewer than
+    // min_file_size_for_dl meaningful tokens, upstream Python skips the model and falls back to
+    // the raw-leading-block UTF-8 decode. Detection: tokens[min_file_size_for_dl - 1] is the
+    // padding sentinel (no real byte survived strip at that index). Sentinel selection: TXT if
+    // the raw leading block decodes as strict UTF-8, else UNKNOWN. Upstream uses the raw
+    // unstripped leading block (`seekable.read_at(0, min(N, block_size))`), NOT the stripped
+    // bytes — see magika.py:_get_label_from_few_bytes called via _get_result_from_few_bytes.
+    int minSize = config.minFileSizeForDl();
+    if (tokens[minSize - 1] == config.paddingToken()) {
+      byte[] rawLeading;
+      try {
+        rawLeading = readRawLeadingBlock(src, smallBuffer);
+      } catch (IOException e) {
+        throw new InvalidInputException("failed to read leading block", e);
+      }
+      ContentTypeLabel output =
+        Utf8Validator.isValid(rawLeading, 0, rawLeading.length) ? ContentTypeLabel.TXT : ContentTypeLabel.UNKNOWN;
+      ResolvedLabels resolved =
+        new ResolvedLabels(ContentTypeLabel.UNDEFINED, output, 1.0, OverwriteReason.NONE);
+      return toResult(resolved);
+    }
+
     InferenceResult raw = engine.run(tokens); // OnnxInferenceEngine wraps OrtException internally
     ResolvedLabels resolved = LabelResolver.resolve(raw, config, mode, registry);
 
@@ -316,6 +340,45 @@ public final class Magika implements AutoCloseable {
     }
 
     return toResult(resolved);
+  }
+
+  /**
+   * CR-02 helper. Read the raw unstripped leading block (up to {@code min(N, block_size)} bytes)
+   * for the post-token "stripped content too short" branch. Mirrors upstream Python
+   * {@code seekable.read_at(0, min(seekable.size, block_size))} at {@code magika.py:760-763} —
+   * the bytes the {@code _get_label_from_few_bytes} UTF-8 decode operates on.
+   */
+  private byte[] readRawLeadingBlock(InputSource src, byte[] smallBuffer) throws IOException {
+    int blockSize = config.blockSize();
+    if (smallBuffer != null) {
+      int n = Math.min(smallBuffer.length, blockSize);
+      if (n == smallBuffer.length) {
+        return smallBuffer;
+      }
+      byte[] out = new byte[n];
+      System.arraycopy(smallBuffer, 0, out, 0, n);
+      return out;
+    }
+    if (src instanceof PathInput p) {
+      long size = Files.size(p.path());
+      int n = (int) Math.min((long) blockSize, size);
+      byte[] out = new byte[n];
+      try (java.io.InputStream in = Files.newInputStream(p.path())) {
+        int off = 0;
+        while (off < n) {
+          int read = in.read(out, off, n - off);
+          if (read < 0) {
+            break;
+          }
+          off += read;
+        }
+      }
+      return out;
+    }
+    // BytesInput / StreamInput should always have smallBuffer set after CR-01 routing; if we get
+    // here without smallBuffer, the InputSource shape is unexpected — surface it loudly.
+    throw new IllegalStateException(
+      "readRawLeadingBlock: smallBuffer null but src is not PathInput: " + src.getClass());
   }
 
   private static MagikaResult toResult(ResolvedLabels r) {
