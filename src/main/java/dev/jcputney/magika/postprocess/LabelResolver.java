@@ -62,8 +62,8 @@ public final class LabelResolver {
     }
 
     // Step 3: determine effective threshold per prediction mode
-    // (§"Prediction-mode threshold semantics").
-    double threshold = effectiveThreshold(mode, dlLabelString, cfg);
+    // (§"Prediction-mode threshold semantics" → §"ThresholdPolicy class extraction").
+    double threshold = ThresholdPolicy.resolve(mode, dlLabelString, cfg);
 
     // Step 4: below-threshold → TXT/UNKNOWN fallback, reason LOW_CONFIDENCE.
     if (score < threshold) {
@@ -81,16 +81,6 @@ public final class LabelResolver {
     ContentTypeLabel dl = new ContentTypeLabel(dlLabelString, registry.get(dlLabelString));
     ContentTypeLabel out = resolveLabel(outputLabelString, registry);
     return new ResolvedLabels(dl, out, score, reason);
-  }
-
-  private static double effectiveThreshold(
-    PredictionMode mode, String dlLabelString, ThresholdConfig cfg) {
-    return switch (mode) {
-      case BEST_GUESS -> 0.0;
-      case MEDIUM_CONFIDENCE -> cfg.mediumConfidenceThreshold();
-      case HIGH_CONFIDENCE -> cfg.thresholds()
-        .getOrDefault(dlLabelString, cfg.mediumConfidenceThreshold());
-    };
   }
 
   private static ContentTypeLabel resolveLabel(String label, ContentTypeRegistry registry) {
