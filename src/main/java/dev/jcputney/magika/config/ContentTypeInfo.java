@@ -68,4 +68,41 @@ public record ContentTypeInfo(
     "Undefined (no model inference)",
     List.of(),
     false);
+
+  /**
+   * Sentinel for empty-file branch (size 0). Cite {@code docs/algorithm-notes.md} §"Small-file
+   * branches" (DEBT-01 / WR-04 — relocated from {@code postprocess.ContentTypeLabel}).
+   */
+  public static final ContentTypeInfo EMPTY = new ContentTypeInfo(
+    "empty",
+    "inode",
+    "inode/x-empty",
+    "Empty file (size 0)",
+    List.of(),
+    false);
+
+  /**
+   * Sentinel for unknown / non-text fallback. Cite {@code docs/algorithm-notes.md} §"Small-file
+   * branches" (DEBT-01 / WR-04 — relocated from {@code postprocess.ContentTypeLabel}).
+   */
+  public static final ContentTypeInfo UNKNOWN = new ContentTypeInfo(
+    "unknown",
+    "unknown",
+    "application/octet-stream",
+    "Unknown binary",
+    List.of(),
+    false);
+
+  /**
+   * Sentinel for plain-text fallback (small-file UTF-8-decode branch + LOW_CONFIDENCE override).
+   * Cite {@code docs/algorithm-notes.md} §"Small-file branches" and §"Overwrite-map ordering"
+   * (DEBT-01 / WR-04 — relocated from {@code postprocess.ContentTypeLabel}).
+   */
+  public static final ContentTypeInfo TXT = new ContentTypeInfo(
+    "txt",
+    "text",
+    "text/plain",
+    "Plain text",
+    List.of("txt"),
+    true);
 }

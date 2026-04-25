@@ -17,7 +17,6 @@
 package dev.jcputney.magika.postprocess;
 
 import dev.jcputney.magika.config.ContentTypeInfo;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -43,35 +42,11 @@ public record ContentTypeLabel(String label, ContentTypeInfo info) {
     "undefined", ContentTypeInfo.UNDEFINED);
 
   /** Output sentinel for empty files (N == 0). */
-  public static final ContentTypeLabel EMPTY = new ContentTypeLabel(
-    "empty",
-    new ContentTypeInfo(
-      "empty",
-      "inode",
-      "inode/x-empty",
-      "Empty file (size 0)",
-      List.of(),
-      false));
+  public static final ContentTypeLabel EMPTY = new ContentTypeLabel("empty", ContentTypeInfo.EMPTY);
 
   /** Output sentinel for files with no confident classification and no text-subtype fallback. */
-  public static final ContentTypeLabel UNKNOWN = new ContentTypeLabel(
-    "unknown",
-    new ContentTypeInfo(
-      "unknown",
-      "unknown",
-      "application/octet-stream",
-      "Unknown binary",
-      List.of(),
-      false));
+  public static final ContentTypeLabel UNKNOWN = new ContentTypeLabel("unknown", ContentTypeInfo.UNKNOWN);
 
   /** Output sentinel for low-confidence / small-file paths that decode as valid UTF-8. */
-  public static final ContentTypeLabel TXT = new ContentTypeLabel(
-    "txt",
-    new ContentTypeInfo(
-      "txt",
-      "text",
-      "text/plain",
-      "Plain text",
-      List.of("txt"),
-      true));
+  public static final ContentTypeLabel TXT = new ContentTypeLabel("txt", ContentTypeInfo.TXT);
 }
