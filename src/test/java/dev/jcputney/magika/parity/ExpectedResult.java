@@ -66,7 +66,24 @@ public record ExpectedResult(
 
     /** Convenience: parses the string reason back to the Java enum. */
     public OverwriteReason overwriteReasonEnum() {
-      return overwriteReason == null ? OverwriteReason.NONE : OverwriteReason.valueOf(overwriteReason);
+      return overwriteReasonEnum(null);
+    }
+
+    /**
+     * Fixture-aware variant — surfaces the fixture path in the failure message when the sidecar
+     * carries a value that doesn't map to {@link OverwriteReason} (DEBT-02 IN-03).
+     */
+    public OverwriteReason overwriteReasonEnum(java.nio.file.Path fixture) {
+      if (overwriteReason == null) {
+        return OverwriteReason.NONE;
+      }
+      try {
+        return OverwriteReason.valueOf(overwriteReason);
+      } catch (IllegalArgumentException e) {
+        String suffix = fixture == null ? "" : " in sidecar for fixture: " + fixture;
+        throw new AssertionError(
+          "Unrecognized overwriteReason '" + overwriteReason + "'" + suffix, e);
+      }
     }
   }
 }

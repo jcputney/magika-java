@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Walks the {@code src/test/resources/fixtures/} tree and loads per-fixture sidecar JSONs.
@@ -35,6 +37,8 @@ import java.util.stream.Stream;
  * out (so a half-added fixture does not break the build).
  */
 public final class FixtureLoader {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(FixtureLoader.class);
 
   private static final ObjectMapper MAPPER = JsonMapper.builder().build();
   private static final String SIDECAR_SUFFIX = ".expected.json";
@@ -47,11 +51,16 @@ public final class FixtureLoader {
    * Returns all fixture files (not sidecars, README, ORACLE_VERSION, or .gitkeep) that have a
    * sibling sidecar JSON, sorted lexicographically by absolute path so the harness order is
    * stable across runs.
+   *
+   * <p>(DEBT-02 IN-05) Orphan fixtures (bytes without a sibling sidecar) are skipped but logged at
+   * SLF4J WARN level so half-added fixtures surface in the developer loop instead of silently
+   * dropping out of the suite. The existing count assertion in {@code UpstreamParityIT} catches
+   * catastrophic loss; the WARN catches single-fixture drift.
    */
   public static List<Path> discoverFixtures(Path fixturesRoot) throws IOException {
     List<Path> out = new ArrayList<>();
     try (Stream<Path> walk = Files.walk(fixturesRoot)) {
-      walk
+      List<Path> candidates = walk
         .filter(Files::isRegularFile)
         .filter(p -> {
           String n = p.getFileName().toString();
@@ -60,9 +69,17 @@ public final class FixtureLoader {
             && !n.equals("ORACLE_VERSION")
             && !n.equals(".gitkeep");
         })
-        .filter(p -> Files.exists(p.resolveSibling(p.getFileName() + SIDECAR_SUFFIX)))
         .sorted(Comparator.comparing(Path::toString))
-        .forEach(out::add);
+        .toList();
+      for (Path p : candidates) {
+        Path sidecar = p.resolveSibling(p.getFileName() + SIDECAR_SUFFIX);
+        if (Files.exists(sidecar)) {
+          out.add(p);
+        } else {
+          LOGGER.warn("fixture has no sidecar (skipping): fixture={} expected_sidecar={}",
+            fixturesRoot.relativize(p), fixturesRoot.relativize(sidecar));
+        }
+      }
     }
     return out;
   }
