@@ -175,10 +175,18 @@ public final class Magika implements AutoCloseable {
           "path is a directory: " + path, new IOException("directory: " + path));
       }
       long size = Files.size(path);
-      byte[] content = size < config.minFileSizeForDl() ? Files.readAllBytes(path) : null;
-      int effectiveLen =
-        content == null ? (int) Math.min(size, Integer.MAX_VALUE) : content.length;
-      return identifyInternal(new PathInput(path), content, effectiveLen);
+      // WR-03: previously narrowed long size to int via Math.min(size, Integer.MAX_VALUE) when
+      // content was null, which silently truncates files >2 GiB. The narrowed value was only
+      // ever consumed by the small-file guard inside identifyInternal — and that guard is
+      // skipped (smallBuffer == null) for the path-not-pre-buffered case anyway. Restructure
+      // so the small-file-buffered branch is its own statement: we read all bytes when (and
+      // only when) size < minFileSizeForDl, which is a long < int comparison and never narrows.
+      // For the not-pre-buffered branch, knownLength is unused so we pass -1 as a sentinel.
+      if (size < config.minFileSizeForDl()) {
+        byte[] content = Files.readAllBytes(path);
+        return identifyInternal(new BytesInput(content), content, content.length);
+      }
+      return identifyInternal(new PathInput(path), null, -1);
     } catch (InvalidInputException iie) {
       throw iie;
     } catch (IOException e) {
