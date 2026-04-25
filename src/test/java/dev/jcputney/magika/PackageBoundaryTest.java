@@ -24,6 +24,7 @@ import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTag;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
+import dev.jcputney.magika.config.ContentTypeInfo;
 
 /**
  * Bytecode-level package-boundary rules enforced on every {@code mvn verify}. The five rules
@@ -127,5 +128,26 @@ class PackageBoundaryTest {
       .dependOnClassesThat()
       .resideInAnyPackage("org.springframework..")
       .because("POJO core per CLAUDE.md: no Spring dependencies.")
+      .allowEmptyShould(true);
+
+  /**
+   * DEBT-01 / WR-04: {@link ContentTypeInfo} records are sourced from
+   * {@code ContentTypeRegistry} (loaded from {@code content_types_kb.min.json}), never ad-hoc.
+   * Sentinel {@code ContentTypeInfo} constants live in {@code config.ContentTypeInfo} itself
+   * (alongside {@code UNDEFINED}), so the only callers of {@code new ContentTypeInfo(...)} in
+   * production code reside inside {@code dev.jcputney.magika.config..}. Test scope is excluded
+   * via the existing {@code ImportOption.DoNotIncludeTests} setting on this class.
+   */
+  @ArchTest
+  static final ArchRule contentTypeInfoConstructionConfinedToConfig =
+    noClasses()
+      .that()
+      .resideOutsideOfPackage("dev.jcputney.magika.config..")
+      .should()
+      .callConstructor(ContentTypeInfo.class)
+      .because(
+        "DEBT-01 / WR-04: ContentTypeInfo records are sourced from "
+          + "ContentTypeRegistry (loaded from content_types_kb.min.json), never ad-hoc. "
+          + "Sentinel ContentTypeInfo constants live in config.ContentTypeInfo itself.")
       .allowEmptyShould(true);
 }
