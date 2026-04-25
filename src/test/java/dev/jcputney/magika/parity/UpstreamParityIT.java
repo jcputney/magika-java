@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 import dev.jcputney.magika.Magika;
 import dev.jcputney.magika.MagikaResult;
+import dev.jcputney.magika.postprocess.PredictionMode;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -58,37 +59,87 @@ class UpstreamParityIT {
   private static final Path FIXTURES_ROOT = Paths.get("src/test/resources/fixtures");
   private static final double SCORE_TOLERANCE = 1e-4;
 
-  private static Magika MAGIKA;
+  // TEST-12 / TEST-13 (Plan 02-02): three Magika singletons — one per PredictionMode. Native
+  // session creation runs three times at suite start (~hundreds of ms × 3, one-time cost). The
+  // existing default-mode harness moves to MAGIKA_HIGH (renamed for clarity); MAGIKA_MEDIUM and
+  // MAGIKA_BEST drive the new mode-divergence fixtures. See 02-RESEARCH.md §"Pattern 5".
+  private static Magika MAGIKA_HIGH;
+  private static Magika MAGIKA_MEDIUM;
+  private static Magika MAGIKA_BEST;
   private static String ORACLE_PIN;
 
   @BeforeAll
   static void setup() throws IOException {
-    MAGIKA = Magika.create();
+    MAGIKA_HIGH = Magika.builder().predictionMode(PredictionMode.HIGH_CONFIDENCE).build();
+    MAGIKA_MEDIUM = Magika.builder().predictionMode(PredictionMode.MEDIUM_CONFIDENCE).build();
+    MAGIKA_BEST = Magika.builder().predictionMode(PredictionMode.BEST_GUESS).build();
     ORACLE_PIN = FixtureLoader.readOracleVersion(FIXTURES_ROOT);
     // D-07: log the pin on first test output so every CI run records it.
     System.out.println("=== Magika Parity Harness ===");
     System.out.println(ORACLE_PIN);
-    System.out.println("Bundled model SHA-256: " + MAGIKA.getModelSha256());
+    System.out.println("Bundled model SHA-256: " + MAGIKA_HIGH.getModelSha256());
     System.out.println("==============================");
   }
 
   @AfterAll
   static void tearDown() {
-    if (MAGIKA != null) {
-      MAGIKA.close();
+    if (MAGIKA_HIGH != null) {
+      MAGIKA_HIGH.close();
+    }
+    if (MAGIKA_MEDIUM != null) {
+      MAGIKA_MEDIUM.close();
+    }
+    if (MAGIKA_BEST != null) {
+      MAGIKA_BEST.close();
     }
   }
 
-  /** TEST-04 / TEST-05: one DynamicTest per fixture via identifyPath (the bulk of the harness). */
+  /**
+   * TEST-04 / TEST-05: one DynamicTest per HIGH-mode fixture via identifyPath. Excludes
+   * mode-prefixed fixtures (medium-confidence-*, best-guess-*) so each mode-divergence fixture is
+   * exercised exactly once — under its own dedicated factory.
+   */
   @TestFactory
-  Stream<DynamicTest> parityEveryFixture() throws IOException {
-    List<Path> fixtures = FixtureLoader.discoverFixtures(FIXTURES_ROOT);
-    assertThat(fixtures)
+  Stream<DynamicTest> parityHighConfidenceFixtures() throws IOException {
+    List<Path> all = FixtureLoader.discoverFixtures(FIXTURES_ROOT);
+    assertThat(all)
       .as("at least 25 fixtures required (TEST-01)")
       .hasSizeGreaterThanOrEqualTo(25);
-    return fixtures.stream().map(fx -> dynamicTest(
-      FIXTURES_ROOT.relativize(fx).toString(),
-      () -> assertParity(fx, MAGIKA.identifyPath(fx))));
+    return all.stream()
+      .filter(p -> {
+        String n = p.getFileName().toString();
+        return !n.startsWith("medium-confidence-") && !n.startsWith("best-guess-");
+      })
+      .map(fx -> dynamicTest(
+        FIXTURES_ROOT.relativize(fx).toString(),
+        () -> assertParity(fx, MAGIKA_HIGH.identifyPath(fx))));
+  }
+
+  /** TEST-12 (Plan 02-02): MEDIUM_CONFIDENCE-mode fixtures discovered by filename prefix. */
+  @TestFactory
+  Stream<DynamicTest> parityMediumConfidenceFixtures() throws IOException {
+    return discoverModeFixtures("medium-confidence-")
+      .map(fx -> dynamicTest(
+        FIXTURES_ROOT.relativize(fx).toString(),
+        () -> assertParity(fx, MAGIKA_MEDIUM.identifyPath(fx))));
+  }
+
+  /** TEST-13 (Plan 02-02): BEST_GUESS-mode fixtures discovered by filename prefix. */
+  @TestFactory
+  Stream<DynamicTest> parityBestGuessFixtures() throws IOException {
+    return discoverModeFixtures("best-guess-")
+      .map(fx -> dynamicTest(
+        FIXTURES_ROOT.relativize(fx).toString(),
+        () -> assertParity(fx, MAGIKA_BEST.identifyPath(fx))));
+  }
+
+  /**
+   * Helper: discover fixtures whose filename begins with the given mode prefix. Returns an empty
+   * stream when no matches (Wave 0 state — fixtures land in Wave 1).
+   */
+  private static Stream<Path> discoverModeFixtures(String prefix) throws IOException {
+    List<Path> all = FixtureLoader.discoverFixtures(FIXTURES_ROOT);
+    return all.stream().filter(p -> p.getFileName().toString().startsWith(prefix));
   }
 
   /** TEST-08: at least one fixture via {@code identifyBytes}. */
@@ -96,7 +147,7 @@ class UpstreamParityIT {
   void identifyBytesExercised() throws IOException {
     Path txt = FIXTURES_ROOT.resolve("text/sample.md");
     byte[] bytes = Files.readAllBytes(txt);
-    MagikaResult r = MAGIKA.identifyBytes(bytes);
+    MagikaResult r = MAGIKA_HIGH.identifyBytes(bytes);
     assertParity(txt, r);
   }
 
@@ -109,7 +160,7 @@ class UpstreamParityIT {
   void identifyStreamExercised_zip_tail_signal() throws IOException {
     Path zip = FIXTURES_ROOT.resolve("archives/sample.zip");
     try (InputStream in = Files.newInputStream(zip)) {
-      MagikaResult r = MAGIKA.identifyStream(in);
+      MagikaResult r = MAGIKA_HIGH.identifyStream(in);
       assertParity(zip, r);
     }
   }
@@ -119,7 +170,7 @@ class UpstreamParityIT {
   void identifyStreamExercised_pdf_tail_signal() throws IOException {
     Path pdf = FIXTURES_ROOT.resolve("documents/sample.pdf");
     try (InputStream in = Files.newInputStream(pdf)) {
-      MagikaResult r = MAGIKA.identifyStream(in);
+      MagikaResult r = MAGIKA_HIGH.identifyStream(in);
       assertParity(pdf, r);
     }
   }
@@ -132,7 +183,7 @@ class UpstreamParityIT {
   void identifyStreamExercised_empty_stream_small_file_branch() throws IOException {
     Path empty = FIXTURES_ROOT.resolve("edge/stream-empty.bin");
     try (InputStream in = Files.newInputStream(empty)) {
-      MagikaResult r = MAGIKA.identifyStream(in);
+      MagikaResult r = MAGIKA_HIGH.identifyStream(in);
       assertParity(empty, r);
     }
   }
@@ -145,7 +196,7 @@ class UpstreamParityIT {
   void identifyStreamExercised_one_text_byte_small_file_branch() throws IOException {
     Path oneByte = FIXTURES_ROOT.resolve("edge/stream-one-text-byte.txt");
     try (InputStream in = Files.newInputStream(oneByte)) {
-      MagikaResult r = MAGIKA.identifyStream(in);
+      MagikaResult r = MAGIKA_HIGH.identifyStream(in);
       assertParity(oneByte, r);
     }
   }
@@ -158,7 +209,7 @@ class UpstreamParityIT {
   void identifyStreamExercised_seven_invalid_utf8_bytes_small_file_branch() throws IOException {
     Path seven = FIXTURES_ROOT.resolve("edge/stream-seven-bytes.bin");
     try (InputStream in = Files.newInputStream(seven)) {
-      MagikaResult r = MAGIKA.identifyStream(in);
+      MagikaResult r = MAGIKA_HIGH.identifyStream(in);
       assertParity(seven, r);
     }
   }
@@ -172,7 +223,7 @@ class UpstreamParityIT {
   @Test
   void identifyPathExercised_leading_whitespace_post_token_short_branch() throws IOException {
     Path fixture = FIXTURES_ROOT.resolve("edge/path-leading-whitespace.txt");
-    MagikaResult r = MAGIKA.identifyPath(fixture);
+    MagikaResult r = MAGIKA_HIGH.identifyPath(fixture);
     assertParity(fixture, r);
   }
 
