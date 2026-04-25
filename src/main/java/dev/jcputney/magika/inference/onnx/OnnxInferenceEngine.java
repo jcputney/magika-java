@@ -184,7 +184,16 @@ public final class OnnxInferenceEngine implements InferenceEngine {
             argmax = i;
           }
         }
-        String topLabel = argmax < labelSpace.length ? labelSpace[argmax] : "undefined";
+        // WR-02: hard fail on argmax out of label space rather than silently returning the
+        // string literal "undefined". A label-space-length mismatch is a model/config skew
+        // (e.g. config.min.json target_labels_space and model.onnx softmax width disagree) —
+        // returning a fake "undefined" label hides the skew behind a normal-looking result.
+        if (argmax >= labelSpace.length) {
+          throw new InferenceException(
+            "model output index " + argmax + " exceeds labelSpace length " + labelSpace.length
+              + " (model.onnx softmax width vs config.min.json target_labels_space size mismatch)");
+        }
+        String topLabel = labelSpace[argmax];
         return new InferenceResult(probs, topLabel, probs[argmax]);
       }
     } catch (OrtException e) {
