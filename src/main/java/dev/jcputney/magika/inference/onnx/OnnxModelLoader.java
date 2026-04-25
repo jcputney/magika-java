@@ -71,7 +71,8 @@ public final class OnnxModelLoader {
    * computes SHA internally to verify) and {@code computeSha256(bytes)} again to populate
    * {@code modelSha256} for the D-11 INFO log.
    */
-  public record LoadedModel(byte[] bytes, String sha256) {}
+  public record LoadedModel(byte[] bytes, String sha256) {
+  }
 
   /**
    * Loads and verifies the bundled model, returning bytes AND the verified SHA-256 in one call so

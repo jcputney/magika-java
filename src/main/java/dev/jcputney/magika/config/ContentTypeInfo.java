@@ -72,24 +72,35 @@ public record ContentTypeInfo(
   /**
    * Sentinel for empty-file branch (size 0). Cite {@code docs/algorithm-notes.md} §"Small-file
    * branches" (DEBT-01 / WR-04 — relocated from {@code postprocess.ContentTypeLabel}).
+   *
+   * <p>Field values are byte-identical to the bundled {@code content_types_kb.min.json} row for
+   * label {@code "empty"} (oracle-pinned upstream {@code 363a44183a6f300d5d7143d94a19e6a841671650}).
+   * The v0.1 hardcoded description {@code "Empty file (size 0)"} drifted from the upstream
+   * {@code "Empty file"}; Phase 2's ContentTypeLabelSentinelsTest surfaced the rot and this constant
+   * is now the upstream-true value.
    */
   public static final ContentTypeInfo EMPTY = new ContentTypeInfo(
     "empty",
     "inode",
     "inode/x-empty",
-    "Empty file (size 0)",
+    "Empty file",
     List.of(),
     false);
 
   /**
    * Sentinel for unknown / non-text fallback. Cite {@code docs/algorithm-notes.md} §"Small-file
    * branches" (DEBT-01 / WR-04 — relocated from {@code postprocess.ContentTypeLabel}).
+   *
+   * <p>Field values are byte-identical to the bundled {@code content_types_kb.min.json} row for
+   * label {@code "unknown"}. The v0.1 hardcoded description {@code "Unknown binary"} drifted from
+   * the upstream {@code "Unknown binary data"}; Phase 2's ContentTypeLabelSentinelsTest surfaced
+   * the rot and this constant is now the upstream-true value.
    */
   public static final ContentTypeInfo UNKNOWN = new ContentTypeInfo(
     "unknown",
     "unknown",
     "application/octet-stream",
-    "Unknown binary",
+    "Unknown binary data",
     List.of(),
     false);
 
@@ -97,12 +108,17 @@ public record ContentTypeInfo(
    * Sentinel for plain-text fallback (small-file UTF-8-decode branch + LOW_CONFIDENCE override).
    * Cite {@code docs/algorithm-notes.md} §"Small-file branches" and §"Overwrite-map ordering"
    * (DEBT-01 / WR-04 — relocated from {@code postprocess.ContentTypeLabel}).
+   *
+   * <p>Field values are byte-identical to the bundled {@code content_types_kb.min.json} row for
+   * label {@code "txt"}. The v0.1 hardcoded description {@code "Plain text"} drifted from the
+   * upstream {@code "Generic text document"}; Phase 2's ContentTypeLabelSentinelsTest surfaced the
+   * rot and this constant is now the upstream-true value.
    */
   public static final ContentTypeInfo TXT = new ContentTypeInfo(
     "txt",
     "text",
     "text/plain",
-    "Plain text",
+    "Generic text document",
     List.of("txt"),
     true);
 }

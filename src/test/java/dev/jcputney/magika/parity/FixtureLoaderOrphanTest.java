@@ -35,7 +35,8 @@ import org.junit.jupiter.api.io.TempDir;
 class FixtureLoaderOrphanTest {
 
   @Test
-  void discoverFixtures_skips_orphan_and_keeps_paired(@TempDir Path tmp) throws IOException {
+  void discoverFixtures_skips_orphan_and_keeps_paired(@TempDir
+  Path tmp) throws IOException {
     Path fxRoot = Files.createDirectories(tmp.resolve("fixtures"));
     // Orphan: bytes only, no sidecar.
     Files.writeString(fxRoot.resolve("orphan.bin"), "");
@@ -50,7 +51,8 @@ class FixtureLoaderOrphanTest {
   }
 
   @Test
-  void discoverFixtures_excludes_README_and_ORACLE_VERSION(@TempDir Path tmp) throws IOException {
+  void discoverFixtures_excludes_README_and_ORACLE_VERSION(@TempDir
+  Path tmp) throws IOException {
     Path fxRoot = Files.createDirectories(tmp.resolve("fixtures"));
     Files.writeString(fxRoot.resolve("README.md"), "docs");
     Files.writeString(fxRoot.resolve("ORACLE_VERSION"), "v1");
