@@ -34,6 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Real ONNX Runtime 1.25.0 engine (INF-03, INF-05, INF-06, INF-07).
@@ -70,6 +72,8 @@ import java.util.Objects;
  * actionable info.
  */
 public final class OnnxInferenceEngine implements InferenceEngine {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(OnnxInferenceEngine.class);
 
   private static final String ORT_VERSION = "1.25.0";
 
@@ -209,8 +213,12 @@ public final class OnnxInferenceEngine implements InferenceEngine {
     closed = true;
     try {
       session.close();
-    } catch (OrtException ignored) {
-      // Session already dead — idempotent close contract.
+    } catch (OrtException e) {
+      // Idempotent close contract — session may already be dead. Log at WARN so operators see
+      // lifecycle anomalies (use-after-close, native state corruption) without breaking the
+      // contract. Per D-11 the three INFO/ERROR contracted sites are load INFO / close INFO /
+      // error-escape ERROR; this WARN is a diagnostic, not a contracted event. (DEBT-02 IN-02)
+      LOGGER.warn("OrtSession.close() threw; treating as already-closed", e);
     }
     // NOTE: OrtEnvironment is a process-wide singleton; do NOT close it here (Pitfall 8).
   }

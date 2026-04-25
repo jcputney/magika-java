@@ -64,9 +64,51 @@ public final class OnnxModelLoader {
   }
 
   /**
+   * Bytes + SHA-256 digest of the bundled model, computed once. (DEBT-02 IN-01)
+   *
+   * <p>Returned by {@link #load()} so callers consume the verified digest without recomputing it.
+   * Cite RESEARCH §IN-01 — Magika constructor previously called both {@code loadAndVerify()} (which
+   * computes SHA internally to verify) and {@code computeSha256(bytes)} again to populate
+   * {@code modelSha256} for the D-11 INFO log.
+   */
+  public record LoadedModel(byte[] bytes, String sha256) {}
+
+  /**
+   * Loads and verifies the bundled model, returning bytes AND the verified SHA-256 in one call so
+   * callers do not recompute the digest. (DEBT-02 IN-01 — closes the redundant-compute site in
+   * {@code Magika} constructor.) On SHA mismatch, emits ERROR log (D-11) and throws
+   * {@link ModelLoadException}.
+   *
+   * @return the bundled model bytes paired with the verified lowercase-hex SHA-256
+   * @throws ModelLoadException if the resource is missing, unreadable, or the SHA-256 does not
+   *                            match
+   */
+  public static LoadedModel load() {
+    byte[] bytes;
+    try (InputStream in = OnnxModelLoader.class.getResourceAsStream(MODEL_RESOURCE)) {
+      if (in == null) {
+        throw new ModelLoadException("bundled model missing from classpath: " + MODEL_RESOURCE);
+      }
+      bytes = in.readAllBytes();
+    } catch (IOException e) {
+      throw new ModelLoadException("failed to read bundled model: " + MODEL_RESOURCE, e);
+    }
+    String actual = computeSha256(bytes);
+    if (!actual.equalsIgnoreCase(EXPECTED_SHA256)) {
+      LOGGER.error("model SHA-256 mismatch: expected={} actual={}", EXPECTED_SHA256, actual);
+      throw new ModelLoadException(
+        "model SHA-256 mismatch: expected " + EXPECTED_SHA256 + " got " + actual);
+    }
+    return new LoadedModel(bytes, actual);
+  }
+
+  /**
    * Load bytes from the bundled classpath resource and verify the SHA-256 matches
    * {@link #EXPECTED_SHA256}. On mismatch, emits ERROR log (D-11) and throws
    * {@link ModelLoadException}.
+   *
+   * <p>Back-compat wrapper around {@link #load()}; new callers should prefer {@link #load()} which
+   * exposes the verified SHA-256 alongside the bytes (DEBT-02 IN-01).
    *
    * @return the bundled model bytes
    * @throws ModelLoadException if the resource is missing, unreadable, or the SHA-256 does not

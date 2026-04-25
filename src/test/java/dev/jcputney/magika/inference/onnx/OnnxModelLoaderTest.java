@@ -60,4 +60,13 @@ class OnnxModelLoaderTest {
     // Catches typos / empty placeholders at build time.
     assertThat(OnnxModelLoader.EXPECTED_SHA256).hasSize(64).matches("[0-9a-fA-F]+");
   }
+
+  @Test
+  void load_returns_bytes_and_sha256_in_one_call() {
+    // IN-01: load() exposes the SHA-256 digest computed inside the loader, so callers
+    // (Magika constructor) no longer call computeSha256(loaded.bytes()) separately.
+    OnnxModelLoader.LoadedModel loaded = OnnxModelLoader.load();
+    assertThat(loaded.bytes().length).isGreaterThan(100_000);
+    assertThat(loaded.sha256()).isEqualToIgnoringCase(OnnxModelLoader.EXPECTED_SHA256);
+  }
 }

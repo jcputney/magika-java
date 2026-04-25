@@ -94,11 +94,12 @@ public final class Magika implements AutoCloseable {
     this.registry = MagikaConfigLoader.loadBundledRegistry();
     this.mode = builder.predictionMode();
 
-    byte[] modelBytes = OnnxModelLoader.loadAndVerify();
-    this.modelSha256 = OnnxModelLoader.computeSha256(modelBytes);
+    // DEBT-02 IN-01: load() returns bytes + verified SHA-256 in one call; no recompute.
+    OnnxModelLoader.LoadedModel loaded = OnnxModelLoader.load();
+    this.modelSha256 = loaded.sha256();
 
     int expectedTokens = config.begSize() + config.midSize() + config.endSize();
-    this.engine = new OnnxInferenceEngine(modelBytes, expectedTokens, config.targetLabelsSpace());
+    this.engine = new OnnxInferenceEngine(loaded.bytes(), expectedTokens, config.targetLabelsSpace());
 
     this.outputContentTypes = config.targetLabelsSpace().stream()
       .map(label -> new ContentTypeLabel(label, registry.get(label)))
