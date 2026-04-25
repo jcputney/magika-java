@@ -657,6 +657,17 @@ Sample entry (the `"3gp"` key, upstream-verbatim):
 }
 ```
 
+### Bundled vs. upstream shape
+
+Upstream ships `content_types_kb.min.json` as a `Map<String, Entry>`. Plan 1's
+vendoring step rewrote it into a JSON array `List<ContentTypeInfo>` where each
+row carries an explicit `label` field (the outer Map key is promoted to a row
+field, matching the Java record shape). See `docs/MODEL_CARD.md`
+§"`content_types_kb.json` shape transformation" for the rewrite provenance and
+`dev.jcputney.magika.config.ContentTypeRegistry.fromList` for the consumer.
+The Java record `ContentTypeInfo` declares `label` as `@JsonProperty("label") String label`
+to match the bundled list-of-objects shape, NOT the upstream map-of-objects shape.
+
 ### Load-bearing line (grep-verifiable)
 
 - `mime_type` is String
@@ -826,6 +837,24 @@ guesses a wrong MEDIUM_CONFIDENCE formula.
 Plan 3's `LabelResolver` is the single implementation of this switch. Do not
 split the mode selector across classes. A single static method with three
 branches citing each Python line range is the shape Plan 3 locks.
+
+### ThresholdPolicy class extraction (POST-02 / DEBT-03)
+
+The three-arm switch above was inlined as `LabelResolver.effectiveThreshold` in v0.1
+(magika.py:593-615 verbatim shape). Phase 2 extracts it into
+`dev.jcputney.magika.postprocess.ThresholdPolicy.resolve(mode, dlLabel, cfg)` —
+a `public final` utility class with a single static method, mirroring the
+shape of `dev.jcputney.magika.postprocess.FallbackLogic`.
+
+**No semantic change.** The body is byte-identical (same switch, same arm
+order, same fallback `getOrDefault`). All 8 cases of `LabelResolverTest`
+pass without modification post-extraction; this is the success criterion.
+
+**Why extract.** v0.1 §POST-02 named the abstraction; the v0.1 retrospective
+recorded the inlining as a deviation. Phase 2 closes the deviation so future
+parity-mode-divergence tests (`ThresholdPolicyTest` — 5 cases) can target
+the formula directly without spinning a full `LabelResolver` test
+fixture.
 
 ---
 
