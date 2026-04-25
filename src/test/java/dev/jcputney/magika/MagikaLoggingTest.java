@@ -25,39 +25,47 @@ import org.junit.jupiter.api.Test;
 
 /**
  * D-11 logging contract: exactly three log sites in the core on the {@code Magika.class} logger.
- * This test asserts the INFO-on-load event fires exactly once per {@link Magika} instance and
- * carries all five expected fields ({@code name}, {@code version}, {@code sha256},
- * {@code contentTypeCount}, {@code loadMs}).
+ * This test asserts the INFO-on-load event and INFO-on-close event each fire exactly once per
+ * {@link Magika} instance.
  *
  * <p>Tagged {@code parity} because the test constructs a real {@link Magika} (which requires the
  * ORT native load). Uses {@code slf4j-simple} as a test-scope binding (see pom.xml) writing to
  * {@code System.err}; the test captures stderr during construction and asserts the log line is
  * present.
  *
- * <p>The DEBUG-on-overwrite-hit event is not asserted here because DEBUG is below the default
- * {@code slf4j-simple} log level (INFO) — overwrite hits are rare enough that exercising one
- * reliably is Plan 6 parity-harness territory. The ERROR-on-SHA-mismatch event lives in
- * {@link dev.jcputney.magika.inference.onnx.OnnxModelLoader} and is covered by
- * {@code OnnxModelLoaderTest}.
+ * <p><strong>D-11 (post-WR-01) is exactly three events:</strong>
+ * <ul>
+ * <li>Load INFO (5 fields: name, version, sha256, contentTypeCount, loadMs) — in
+ * {@link Magika#Magika(MagikaBuilder)}.
+ * <li>Close INFO (3 fields: name, version, sha256) — in {@link Magika#close()}, fires only on
+ * first close (idempotency guard).
+ * <li>Error events: ERROR on SHA mismatch in
+ * {@link dev.jcputney.magika.inference.onnx.OnnxModelLoader} (covered by
+ * {@code OnnxModelLoaderTest}).
+ * </ul>
+ *
+ * <p>The previous per-call DEBUG-on-overwrite-hit event was removed in 01-07 (WR-01) because it
+ * violated D-11's three-event contract and CLAUDE.md's "no per-call logging payloads" rule.
  */
 @Tag("parity")
 class MagikaLoggingTest {
 
   @Test
-  void info_log_on_load_fires_once_with_all_five_fields() {
+  void info_log_on_load_and_close_each_fire_once() {
     ByteArrayOutputStream buf = new ByteArrayOutputStream();
     PrintStream originalErr = System.err;
     try {
       System.setErr(new PrintStream(buf));
       // slf4j-simple (test-scope) writes INFO+ to stderr on dev.jcputney.magika.Magika logger.
-      try (Magika m = Magika.create()) {
-        // no-op; just construct so the INFO load event fires.
-      }
+      Magika m = Magika.create();
+      m.close();
+      m.close(); // second close must be a no-op (no second close log)
     } finally {
       System.setErr(originalErr);
     }
     String log = buf.toString();
-    // D-11: INFO on load carries name, version, sha256, contentTypeCount, loadMs.
+
+    // D-11 load: INFO carries name, version, sha256, contentTypeCount, loadMs.
     assertThat(log).contains("Magika loaded:");
     assertThat(log).contains("name=standard_v3_3");
     assertThat(log).contains("version=v3_3");
@@ -65,13 +73,21 @@ class MagikaLoggingTest {
     assertThat(log).contains("contentTypeCount=");
     assertThat(log).contains("loadMs=");
 
-    // Exactly one occurrence — no duplicate INFOs per instance.
-    int occurrences = 0;
+    // D-11 close (WR-01): INFO carries name, version, sha256.
+    assertThat(log).contains("Magika closed:");
+
+    // Exactly one occurrence of each event — no duplicates, idempotent close emits zero extra.
+    assertThat(countOccurrences(log, "Magika loaded:")).isEqualTo(1);
+    assertThat(countOccurrences(log, "Magika closed:")).isEqualTo(1);
+  }
+
+  private static int countOccurrences(String haystack, String needle) {
+    int count = 0;
     int idx = 0;
-    while ((idx = log.indexOf("Magika loaded:", idx)) != -1) {
-      occurrences++;
-      idx++;
+    while ((idx = haystack.indexOf(needle, idx)) != -1) {
+      count++;
+      idx += needle.length();
     }
-    assertThat(occurrences).isEqualTo(1);
+    return count;
   }
 }

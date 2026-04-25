@@ -275,6 +275,8 @@ public final class Magika implements AutoCloseable {
     closed = true;
     engine.close();
     // Do NOT close OrtEnvironment — process-wide singleton.
+    // D-11 INFO: close event — fires exactly once per instance (idempotency guard above).
+    LOGGER.info("Magika closed: name={} version={} sha256={}", MODEL_NAME, MODEL_VERSION, modelSha256);
   }
 
   private void checkOpen() {
@@ -328,16 +330,10 @@ public final class Magika implements AutoCloseable {
     InferenceResult raw = engine.run(tokens); // OnnxInferenceEngine wraps OrtException internally
     ResolvedLabels resolved = LabelResolver.resolve(raw, config, mode, registry);
 
-    // D-11 DEBUG: overwrite-hit event (4 fields) — logged when output.label != dl.label. Content
-    // is metadata-only (reason + label strings + score); never file content or path.
-    if (resolved.overwriteReason() != OverwriteReason.NONE) {
-      LOGGER.debug(
-        "overwrite-map hit: reason={} dl={} output={} score={}",
-        resolved.overwriteReason(),
-        resolved.dlLabel().label(),
-        resolved.outputLabel().label(),
-        resolved.score());
-    }
+    // D-11: NO per-call log site here. The overwrite-hit DEBUG log was removed in 01-07 (WR-01)
+    // because per-call logging payloads violate the D-11 three-event contract (load/close/error)
+    // and CLAUDE.md's explicit "no per-call logging payloads" out-of-scope item. Consumers needing
+    // overwrite visibility inspect MagikaResult.output().overwriteReason() programmatically.
 
     return toResult(resolved);
   }
