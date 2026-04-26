@@ -2,7 +2,7 @@
 phase: 03-public-api-ergonomics
 plan: "02"
 subsystem: public-api
-one_liner: "Lazy OrtSession init via synchronized-block ensureEngine() + identifyPaths batch overloads with per-call ForkJoinPool, A-02 Status mapping, and SC-6 concurrent-first-use contract (REF-02 + REF-04)"
+one_liner: "REF-02 + REF-04: lazy OrtSession via synchronized ensureEngine() + identifyPaths batch overloads + SC-6 contract."
 requirements_completed: [REF-02, REF-04]
 tags: [lazy-init, batch-identify, concurrency, forkjoinpool, synchronized, status-mapping]
 dependency_graph:
