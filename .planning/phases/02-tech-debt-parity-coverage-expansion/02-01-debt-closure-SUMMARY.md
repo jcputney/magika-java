@@ -7,10 +7,10 @@ type: execute
 status: complete
 completed: 2026-04-25
 duration: ~25min
-one_liner: "Closes v0.1 carry-forward debt: sentinels relocated to ContentTypeInfo (drift fixed), ThresholdPolicy extracted, IN-01..IN-05 closed."
+one_liner: "v0.1 debt closure: ContentTypeLabel sentinels via registry, ThresholdPolicy extracted, IN-01..IN-05 closed."
 requirements_completed: [DEBT-01, DEBT-02, DEBT-03]
 findings_closed: [WR-04, IN-01, IN-02, IN-03, IN-04, IN-05, POST-02]
-key-files:
+key_files:
   created:
     - src/main/java/dev/jcputney/magika/postprocess/ThresholdPolicy.java
     - src/test/java/dev/jcputney/magika/postprocess/ThresholdPolicyTest.java
@@ -31,13 +31,30 @@ key-files:
     - src/test/java/dev/jcputney/magika/parity/ExpectedResult.java
     - src/test/java/dev/jcputney/magika/parity/FixtureLoader.java
 decisions:
-  - "DEBT-01 implementation choice (b): static-final sentinel constants relocated from postprocess.ContentTypeLabel into config.ContentTypeInfo (alongside existing UNDEFINED). Preserves LabelResolverTest isSameAs object identity; keeps ArchUnit rule clean (no per-package exceptions)."
-  - "DEBT-02 IN-04 + DEBT-03 ALG-14 land in ONE combined docs commit (6dcf9ad) at the head of the plan. Verified post-hoc by content-anchored ancestor check (git log -S 'ThresholdPolicy class extraction' / git merge-base --is-ancestor)."
-  - "DEBT-02 IN-02 SLF4J-only WARN log on close-time OrtException — no MockAppender / logback dep added (CLAUDE.md no-unapproved-deps). Negative log-grep test in OnnxInferenceEngineCloseTest verifies the WARN does NOT fire on healthy close."
-  - "DEBT-02 IN-03 Option A: fixture-aware overload overwriteReasonEnum(Path) on ExpectedPrediction. 0-arg overload preserved for back-compat (delegates with null fixture)."
-  - "DEBT-02 IN-05 log-WARN over fail-fast: FixtureLoader.discoverFixtures emits SLF4J WARN per orphan, preserving the @TestFactory iterative-fixture-write workflow."
-  - "DEBT-01 Rule 1 deviation (sentinel description drift): the new ContentTypeLabelSentinelsTest surfaced v0.1 doc-rot — three hardcoded ContentTypeInfo.{TXT, UNKNOWN, EMPTY} descriptions disagreed with the bundled content_types_kb.json. Per CLAUDE.md non-negotiable + plan T03 STOP-AND-ASK guidance, sentinels were updated to match upstream verbatim; assertions were NOT softened. Drift documented in Javadoc on each constant."
-  - "DEBT-02 IN-01 back-compat preserved: load() returns LoadedModel(bytes, sha256) — preferred new entry; loadAndVerify() and computeSha256() retained for existing OnnxModelLoaderTest references."
+  - topic: "POST-02 inlining"
+    decision: "extracted ThresholdPolicy as planned (deviation closure)"
+    rationale: "v0.1 retro flagged POST-02 inlining as the canonical PROC-03 example; DEBT-03 explicitly extracts ThresholdPolicy to its own class in dev.jcputney.magika.postprocess to close the deviation. LabelResolver.effectiveThreshold now delegates; the 8 existing LabelResolverTest cases pass UNMODIFIED."
+  - topic: "DEBT-01 sentinel relocation strategy"
+    decision: "Implementation choice (b): static-final sentinel constants relocated from postprocess.ContentTypeLabel into config.ContentTypeInfo alongside existing UNDEFINED."
+    rationale: "Preserves LabelResolverTest isSameAs object identity; keeps the new 7th ArchUnit rule clean (no per-package exceptions for postprocess to construct ContentTypeInfo). The alternative (allowlist postprocess in the rule) would have leaked the abstraction back into the package the rule was added to fence off."
+  - topic: "DEBT-02 IN-04 + DEBT-03 ALG-14 docs commit ordering"
+    decision: "DEBT-02 IN-04 (content_types_kb shape cross-ref) and DEBT-03 ALG-14 (ThresholdPolicy extraction notes) land in ONE combined docs commit (6dcf9ad) at the head of the plan, before any postprocess or config code edit."
+    rationale: "Verified post-hoc by content-anchored ancestor check: git log -S 'ThresholdPolicy class extraction' returns 6dcf9ad; git merge-base --is-ancestor 6dcf9ad 57c6f1b returns exit 0. ALG-14 read-before-write gate proven via git history rather than assertion."
+  - topic: "DEBT-02 IN-02 close-time WARN observability"
+    decision: "SLF4J-only WARN log on close-time OrtException — no MockAppender / logback dep added."
+    rationale: "Per CLAUDE.md no-unapproved-deps. Negative log-grep test in OnnxInferenceEngineCloseTest verifies the WARN does NOT fire on healthy close (System.setErr capture pattern reused from MagikaLoggingTest); the positive-case assertion (WARN on actual OrtException) is documented but not asserted because asserting it would require adding a mock appender dep."
+  - topic: "DEBT-02 IN-03 ExpectedResult fixture-context overload shape"
+    decision: "Option A: fixture-aware overload overwriteReasonEnum(java.nio.file.Path fixture) on ExpectedPrediction; 0-arg overload preserved for back-compat (delegates with null fixture)."
+    rationale: "On IllegalArgumentException, the overload throws AssertionError naming the fixture path. Existing call sites compile unchanged; new parity-test failure messages now identify which sidecar carries the bogus enum value rather than requiring fixture-by-fixture grep."
+  - topic: "DEBT-02 IN-05 FixtureLoader orphan handling"
+    decision: "log-WARN over fail-fast: FixtureLoader.discoverFixtures emits SLF4J WARN per orphan, preserving the @TestFactory iterative-fixture-write workflow."
+    rationale: "fail-fast would block half-staged fixture authoring (a real workflow during fixture expansion in 02-02); the existing UpstreamParityIT count assertion still catches catastrophic loss. Research recommendation honored."
+  - topic: "DEBT-01 Rule 1 deviation: sentinel description doc-rot"
+    decision: "Update sentinel descriptions in ContentTypeInfo.{TXT, UNKNOWN, EMPTY} to match the bundled content_types_kb verbatim (Plain text → Generic text document; Unknown binary → Unknown binary data; Empty file (size 0) → Empty file)."
+    rationale: "Per CLAUDE.md non-negotiable + plan T03 STOP-AND-ASK guidance: assertions were NOT softened. The new ContentTypeLabelSentinelsTest surfaced v0.1 doc-rot — three hardcoded ContentTypeInfo descriptions disagreed with the bundled registry. Drift documented in Javadoc on each constant. 30 v0.1 parity fixtures still byte-for-byte clean (descriptions are not part of the parity comparison)."
+  - topic: "DEBT-02 IN-01 OnnxModelLoader back-compat"
+    decision: "load() returns LoadedModel(bytes, sha256) — preferred new entry; loadAndVerify() and computeSha256(byte[]) retained for existing OnnxModelLoaderTest references."
+    rationale: "Deletion of the v0.1 methods would break compile in 4 existing test methods that were written before LoadedModel existed. Magika constructor now consumes loaded.sha256() directly — eliminates the redundant ~30ms SHA-256 compute on the 3.0 MiB bundled model on every Magika construction."
 commits:
   - a562741 test(02-01) scaffold Wave-0 RED tests for DEBT-01/02/03 + 7th ArchUnit rule
   - 6dcf9ad docs(02-01) document ThresholdPolicy extraction + content_types_kb shape cross-ref
