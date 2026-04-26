@@ -61,18 +61,29 @@ class PackageBoundaryTest {
   /**
    * CFG-04: only {@code dev.jcputney.magika.config} may import Jackson. All other packages
    * consume parsed records from {@code config}, never raw JSON.
+   *
+   * <p>Carve-out (REF-01 / Plan 03-01): {@code dev.jcputney.magika.Status} carries
+   * {@code @JsonProperty} on its enum constants to mirror upstream Python's lowercase snake_case
+   * wire format verbatim. The annotation is a soft Jackson reference (no runtime Jackson code in
+   * the root package); the architectural intent of CFG-04 — keep Jackson code paths in config —
+   * is preserved. Future enums in the public API package that need similar wire-format mapping
+   * must be reviewed individually before being added to this allowlist.
    */
   @ArchTest
   static final ArchRule jacksonConfinedToConfig =
     noClasses()
       .that()
       .resideOutsideOfPackage("dev.jcputney.magika.config..")
+      .and()
+      .doNotHaveFullyQualifiedName("dev.jcputney.magika.Status")
       .should()
       .dependOnClassesThat()
       .resideInAnyPackage("com.fasterxml.jackson..")
       .because(
         "CFG-04: com.fasterxml.jackson.* references are confined to"
-          + " dev.jcputney.magika.config (per CLAUDE.md).")
+          + " dev.jcputney.magika.config (per CLAUDE.md)."
+          + " Carve-out: Status enum (REF-01) — annotation-only Jackson reference"
+          + " for upstream-verbatim wire format.")
       .allowEmptyShould(true);
 
   /**

@@ -23,13 +23,14 @@ import java.util.Objects;
 /**
  * Deserialization target for the per-fixture sidecar {@code .expected.json} files (D-04).
  *
- * <p>Schema:
+ * <p>Schema (v0.2 / Plan 03-01 — 6-key shape with {@code status} added per REF-01 / A-04):
  *
  * <pre>
  * {
  * "dl": { "label": "...", "score": 0.9876, "overwriteReason": "NONE" },
  * "output": { "label": "...", "score": 0.9876, "overwriteReason": "NONE|LOW_CONFIDENCE|OVERWRITE_MAP" },
  * "score": 0.9876,
+ * "status": "ok",
  * "upstream_magika_version": "1.0.2",
  * "upstream_magika_git_sha": "363a441..."
  * }
@@ -45,6 +46,8 @@ public record ExpectedResult(
                              ExpectedPrediction output,
                              @JsonProperty("score")
                              double score,
+                             @JsonProperty("status")
+                             String status,
                              @JsonProperty("upstream_magika_version")
                              String upstreamMagikaVersion,
                              @JsonProperty("upstream_magika_git_sha")
@@ -53,6 +56,22 @@ public record ExpectedResult(
   public ExpectedResult {
     Objects.requireNonNull(dl, "dl");
     Objects.requireNonNull(output, "output");
+    Objects.requireNonNull(status, "status"); // REF-01 / A-04 — sidecars without status field fail loudly
+  }
+
+  /**
+   * Convenience parser — maps the wire status string to the Java {@link dev.jcputney.magika.Status}
+   * enum constant. Surfaces the fixture path in the failure message when the sidecar carries an
+   * unrecognized value (mirrors {@link ExpectedPrediction#overwriteReasonEnum(java.nio.file.Path)}).
+   */
+  public dev.jcputney.magika.Status statusEnum(java.nio.file.Path fixture) {
+    String javaName = status.toUpperCase(java.util.Locale.ROOT);
+    try {
+      return dev.jcputney.magika.Status.valueOf(javaName);
+    } catch (IllegalArgumentException e) {
+      String suffix = fixture == null ? "" : " in sidecar for fixture: " + fixture;
+      throw new AssertionError("Unrecognized status '" + status + "'" + suffix, e);
+    }
   }
 
   /** One prediction column from the sidecar (either {@code dl} or {@code output}). */
