@@ -63,6 +63,26 @@ Google, not endorsed by Google, and not part of the official Magika
 distribution. See [`docs/MODEL_CARD.md`](./docs/MODEL_CARD.md) for
 bundled-model provenance including upstream commit SHA and file SHA-256.
 
+## Breaking changes in v0.2
+
+`MagikaResult` is now a 4-component record — adds `Status status`. Existing 3-arg
+canonical constructors (`new MagikaResult(dl, output, score)`) stop compiling.
+
+Single-call paths (`identifyPath`, `identifyBytes`, `identifyStream`) always set
+`status = Status.OK` on success and continue to throw their existing
+`InvalidInputException` / `InferenceException` / `ModelLoadException` on failure
+(no semantic change).
+
+The new `Status` enum is a 4-value verbatim mirror of upstream Python's `Status` —
+`OK | FILE_NOT_FOUND_ERROR | PERMISSION_ERROR | UNKNOWN`. The non-OK values are
+populated only by the new `identifyPaths(List<Path>)` batch method per the per-file
+failure mapping documented in the `Magika` class Javadoc (lands in v0.2 plan 03-02).
+
+This is a pre-1.0 source-break, accepted because no Maven Central publish has
+happened (no external consumers exist) and only project-internal test fixtures
+construct `MagikaResult` directly. After v0.3 ships to Maven Central, similar
+record changes will require a different mitigation strategy.
+
 ## License
 
 Apache License 2.0. See [`LICENSE`](./LICENSE). Upstream `LICENSE` and
