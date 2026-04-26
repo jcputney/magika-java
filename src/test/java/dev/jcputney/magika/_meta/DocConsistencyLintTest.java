@@ -78,7 +78,7 @@ class DocConsistencyLintTest {
   Path tmp) throws IOException {
     writeRequirements(tmp, "- [x] **FOO-1**: synthetic\n");
     writeSummary(tmp, "01-fake/01-fake-SUMMARY.md",
-        frontmatter("synthetic plan", "[FOO-1]", null));
+      frontmatter("synthetic plan", "[FOO-1]", null));
 
     DocConsistencyLint.Report report = DocConsistencyLint.scan(tmp);
 
@@ -91,16 +91,16 @@ class DocConsistencyLintTest {
     // D-12 canonical fixture: REQUIREMENTS still '[ ]' but SUMMARY claims completed.
     writeRequirements(tmp, "- [ ] **FAKE-99**: synthetic unfinished\n");
     writeSummary(tmp, "99-fake/99-fake-SUMMARY.md",
-        frontmatter("synthetic plan", "[FAKE-99]", null));
+      frontmatter("synthetic plan", "[FAKE-99]", null));
 
     DocConsistencyLint.Report report = DocConsistencyLint.scan(tmp);
 
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::mode)
-        .contains("DRIFT_STALE_FORWARD");
+      .extracting(DocConsistencyLint.Failure::mode)
+      .contains("DRIFT_STALE_FORWARD");
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::message)
-        .anyMatch(m -> m.contains("FAKE-99"));
+      .extracting(DocConsistencyLint.Failure::message)
+      .anyMatch(m -> m.contains("FAKE-99"));
   }
 
   @Test
@@ -113,11 +113,11 @@ class DocConsistencyLintTest {
     DocConsistencyLint.Report report = DocConsistencyLint.scan(tmp);
 
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::mode)
-        .contains("DRIFT_STALE_REVERSE");
+      .extracting(DocConsistencyLint.Failure::mode)
+      .contains("DRIFT_STALE_REVERSE");
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::message)
-        .anyMatch(m -> m.contains("LONELY-1"));
+      .extracting(DocConsistencyLint.Failure::message)
+      .anyMatch(m -> m.contains("LONELY-1"));
   }
 
   @Test
@@ -125,16 +125,16 @@ class DocConsistencyLintTest {
   Path tmp) throws IOException {
     writeRequirements(tmp, "- [x] **REAL-1**: real requirement\n");
     writeSummary(tmp, "01-real/01-real-SUMMARY.md",
-        frontmatter("real plan", "[REAL-1, PHANTOM-1]", null));
+      frontmatter("real plan", "[REAL-1, PHANTOM-1]", null));
 
     DocConsistencyLint.Report report = DocConsistencyLint.scan(tmp);
 
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::mode)
-        .contains("DRIFT_ORPHAN");
+      .extracting(DocConsistencyLint.Failure::mode)
+      .contains("DRIFT_ORPHAN");
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::message)
-        .anyMatch(m -> m.contains("PHANTOM-1"));
+      .extracting(DocConsistencyLint.Failure::message)
+      .anyMatch(m -> m.contains("PHANTOM-1"));
   }
 
   @Test
@@ -143,13 +143,13 @@ class DocConsistencyLintTest {
     writeRequirements(tmp, "- [x] **FOO-1**: synthetic\n");
     // Open --- but no closing --- before EOF.
     writeSummary(tmp, "01-bad/01-bad-SUMMARY.md",
-        "---\none_liner: \"missing close delim\"\nrequirements_completed: [FOO-1]\n");
+      "---\none_liner: \"missing close delim\"\nrequirements_completed: [FOO-1]\n");
 
     DocConsistencyLint.Report report = DocConsistencyLint.scan(tmp);
 
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::mode)
-        .contains("PARSE_ERROR");
+      .extracting(DocConsistencyLint.Failure::mode)
+      .contains("PARSE_ERROR");
   }
 
   @Test
@@ -160,16 +160,16 @@ class DocConsistencyLintTest {
     // mapping is on 'one_liner' so the typo silently nulls the field per B-01; the
     // post-deserialization assertion layer catches it as MISSING_REQUIRED_FIELD.
     writeSummary(tmp, "01-typo/01-typo-SUMMARY.md",
-        "---\none-liner: \"typo on field name\"\nrequirements_completed: [FOO-1]\n---\n");
+      "---\none-liner: \"typo on field name\"\nrequirements_completed: [FOO-1]\n---\n");
 
     DocConsistencyLint.Report report = DocConsistencyLint.scan(tmp);
 
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::mode)
-        .contains("MISSING_REQUIRED_FIELD");
+      .extracting(DocConsistencyLint.Failure::mode)
+      .contains("MISSING_REQUIRED_FIELD");
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::message)
-        .anyMatch(m -> m.contains("one_liner"));
+      .extracting(DocConsistencyLint.Failure::message)
+      .anyMatch(m -> m.contains("one_liner"));
   }
 
   @Test
@@ -179,13 +179,13 @@ class DocConsistencyLintTest {
     // Build a 121-char one_liner (1 over the 120 limit).
     String tooLong = "x".repeat(121);
     writeSummary(tmp, "01-long/01-long-SUMMARY.md",
-        "---\none_liner: \"" + tooLong + "\"\nrequirements_completed: [FOO-1]\n---\n");
+      "---\none_liner: \"" + tooLong + "\"\nrequirements_completed: [FOO-1]\n---\n");
 
     DocConsistencyLint.Report report = DocConsistencyLint.scan(tmp);
 
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::mode)
-        .contains("ONE_LINER_TOO_LONG");
+      .extracting(DocConsistencyLint.Failure::mode)
+      .contains("ONE_LINER_TOO_LONG");
   }
 
   @Test
@@ -194,13 +194,13 @@ class DocConsistencyLintTest {
     writeRequirements(tmp, "- [x] **FOO-1**: synthetic\n");
     // Lowercase REQ-ID violates ^[A-Z]+-[0-9]+$.
     writeSummary(tmp, "01-shape/01-shape-SUMMARY.md",
-        frontmatter("bad req shape", "[\"foo-1\"]", null));
+      frontmatter("bad req shape", "[\"foo-1\"]", null));
 
     DocConsistencyLint.Report report = DocConsistencyLint.scan(tmp);
 
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::mode)
-        .contains("REQ_ID_SHAPE");
+      .extracting(DocConsistencyLint.Failure::mode)
+      .contains("REQ_ID_SHAPE");
   }
 
   @Test
@@ -209,21 +209,21 @@ class DocConsistencyLintTest {
     writeRequirements(tmp, "- [x] **FOO-1**: synthetic\n");
     // Blank 'decision' field — DECISIONS_SHAPE per D-11.
     String decisions =
-        "  - topic: \"a topic\"\n"
-            + "    decision: \"\"\n"
-            + "    rationale: \"a rationale\"\n";
+      "  - topic: \"a topic\"\n"
+        + "    decision: \"\"\n"
+        + "    rationale: \"a rationale\"\n";
     writeSummary(tmp, "01-dshape/01-dshape-SUMMARY.md",
-        "---\n"
-            + "one_liner: \"bad decisions shape\"\n"
-            + "requirements_completed: [FOO-1]\n"
-            + "decisions:\n" + decisions
-            + "---\n");
+      "---\n"
+        + "one_liner: \"bad decisions shape\"\n"
+        + "requirements_completed: [FOO-1]\n"
+        + "decisions:\n" + decisions
+        + "---\n");
 
     DocConsistencyLint.Report report = DocConsistencyLint.scan(tmp);
 
     assertThat(report.failures())
-        .extracting(DocConsistencyLint.Failure::mode)
-        .contains("DECISIONS_SHAPE");
+      .extracting(DocConsistencyLint.Failure::mode)
+      .contains("DECISIONS_SHAPE");
   }
 
   @Test
@@ -232,7 +232,7 @@ class DocConsistencyLintTest {
     // B-11: decisions[] is OPTIONAL — absence is not MISSING_REQUIRED_FIELD.
     writeRequirements(tmp, "- [x] **FOO-1**: synthetic\n");
     writeSummary(tmp, "01-nodec/01-nodec-SUMMARY.md",
-        "---\none_liner: \"no decisions field\"\nrequirements_completed: [FOO-1]\n---\n");
+      "---\none_liner: \"no decisions field\"\nrequirements_completed: [FOO-1]\n---\n");
 
     DocConsistencyLint.Report report = DocConsistencyLint.scan(tmp);
 
@@ -246,10 +246,10 @@ class DocConsistencyLintTest {
     // the milestones subtree is read-only audit material per D-05.
     writeRequirements(tmp, "- [x] **FOO-1**: synthetic\n");
     writeSummary(tmp, "01-real/01-real-SUMMARY.md",
-        frontmatter("clean plan", "[FOO-1]", null));
+      frontmatter("clean plan", "[FOO-1]", null));
     // Synthesize a malformed SUMMARY inside a milestones/ subdirectory.
     writeSummary(tmp, "01-real/milestones/v0.1-phases/01-archived-SUMMARY.md",
-        "no frontmatter at all — would be PARSE_ERROR if scanned\n");
+      "no frontmatter at all — would be PARSE_ERROR if scanned\n");
 
     DocConsistencyLint.Report report = DocConsistencyLint.scan(tmp);
 
@@ -265,9 +265,9 @@ class DocConsistencyLintTest {
   @Test
   void active_corpus_is_clean() throws IOException {
     Assumptions.assumeTrue(
-        Files.isDirectory(Path.of(".planning")),
-        ".planning/ absent — lint runs at milestone close on planner's machine; "
-            + "CI runners log skip and move on (BUILD-08).");
+      Files.isDirectory(Path.of(".planning")),
+      ".planning/ absent — lint runs at milestone close on planner's machine; "
+        + "CI runners log skip and move on (BUILD-08).");
     // BUILD-08 corollary: in worktree-parallel-execution mode the worktree contains a
     // PARTIAL .planning/ — only the gitignored files committed in prior waves are present;
     // REQUIREMENTS.md is gitignored at the project root and may not exist in the worktree's
@@ -276,18 +276,18 @@ class DocConsistencyLintTest {
     // a noisy false-positive that masks real drift. Skip in this case for the same reason
     // we skip when the whole .planning/ is absent: the corpus state is not validatable.
     Assumptions.assumeTrue(
-        Files.isRegularFile(Path.of(".planning/REQUIREMENTS.md")),
-        ".planning/REQUIREMENTS.md absent — partial .planning/ state (likely worktree "
-            + "parallel-execution mode where REQUIREMENTS.md is not committed). The "
-            + "orchestrator runs the canary post-merge against the full main-repo .planning/.");
+      Files.isRegularFile(Path.of(".planning/REQUIREMENTS.md")),
+      ".planning/REQUIREMENTS.md absent — partial .planning/ state (likely worktree "
+        + "parallel-execution mode where REQUIREMENTS.md is not committed). The "
+        + "orchestrator runs the canary post-merge against the full main-repo .planning/.");
 
     DocConsistencyLint.Report report = DocConsistencyLint.scan(Path.of(".planning"));
 
     // Per B-05 dogfood timing: this is the moment 04-01's normalization is validated. If 04-01
     // missed a SUMMARY or a field, this assertion lists every drift entry in one diagnostic.
     assertThat(report.failures())
-        .as("Doc-consistency lint failures (PROC-01) — fix this list at milestone close")
-        .isEmpty();
+      .as("Doc-consistency lint failures (PROC-01) — fix this list at milestone close")
+      .isEmpty();
   }
 
   // ----------------------------------------------------------------------------------------
@@ -299,7 +299,7 @@ class DocConsistencyLintTest {
   }
 
   private static void writeSummary(Path tmp, String relativePath, String content)
-      throws IOException {
+    throws IOException {
     Path summary = tmp.resolve("phases").resolve(relativePath);
     Files.createDirectories(summary.getParent());
     Files.writeString(summary, content);
@@ -308,13 +308,13 @@ class DocConsistencyLintTest {
   /**
    * Build a canonical-shape frontmatter block.
    *
-   * @param oneLiner the one_liner value (no surrounding quotes — they are added).
+   * @param oneLiner         the one_liner value (no surrounding quotes — they are added).
    * @param requirementsList the requirements_completed value (e.g. {@code "[FOO-1]"}).
-   * @param decisionsBlock optional indented decisions YAML block (without the leading
-   *                       {@code "decisions:\n"}). Pass null to omit the field entirely.
+   * @param decisionsBlock   optional indented decisions YAML block (without the leading
+   *                         {@code "decisions:\n"}). Pass null to omit the field entirely.
    */
   private static String frontmatter(String oneLiner, String requirementsList,
-      String decisionsBlock) {
+    String decisionsBlock) {
     StringBuilder sb = new StringBuilder();
     sb.append("---\n");
     sb.append("one_liner: \"").append(oneLiner).append("\"\n");

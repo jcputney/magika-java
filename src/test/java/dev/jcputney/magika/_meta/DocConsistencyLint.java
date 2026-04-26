@@ -70,7 +70,7 @@ public final class DocConsistencyLint {
    * Traceability table ({@code |}-delimited cells).
    */
   private static final Pattern REQ_ID_LINE =
-      Pattern.compile("^\\- \\[.\\] \\*\\*([A-Z]+-[0-9]+)\\*\\*");
+    Pattern.compile("^\\- \\[.\\] \\*\\*([A-Z]+-[0-9]+)\\*\\*");
 
   /** Per-REQ-ID shape regex for D-09 {@code REQ_ID_SHAPE} validation. */
   private static final Pattern REQ_ID_SHAPE = Pattern.compile("^[A-Z]+-[0-9]+$");
@@ -84,6 +84,7 @@ public final class DocConsistencyLint {
   /** A single lint violation, named per D-09 failure mode. */
   public record Failure(String filePath, String mode, String message) {
   }
+
 
   /** Immutable scan result; {@link Report#failures()} is empty when the corpus is clean. */
   public record Report(List<Failure> failures) {
@@ -137,15 +138,15 @@ public final class DocConsistencyLint {
       // paths (returned by Files.walk(phasesRoot)) and relative paths. Do not relativize before
       // matching.
       PathMatcher summaryMatcher =
-          FileSystems.getDefault().getPathMatcher("glob:**/*SUMMARY.md");
+        FileSystems.getDefault().getPathMatcher("glob:**/*SUMMARY.md");
       List<Path> summaries;
       try (Stream<Path> walk = Files.walk(phasesRoot)) {
         summaries = walk
-            .filter(Files::isRegularFile)
-            .filter(summaryMatcher::matches)
-            .filter(p -> !p.toString().contains("/milestones/"))
-            .sorted()
-            .toList();
+          .filter(Files::isRegularFile)
+          .filter(summaryMatcher::matches)
+          .filter(p -> !p.toString().contains("/milestones/"))
+          .sorted()
+          .toList();
       }
 
       for (Path summaryFile : summaries) {
@@ -159,10 +160,10 @@ public final class DocConsistencyLint {
         // 3. Post-deserialization assertion layer (D-02 + B-01).
         if (fm.oneLiner() == null || fm.oneLiner().isBlank()) {
           failures.add(new Failure(relPath, "MISSING_REQUIRED_FIELD",
-              "'one_liner' absent or misnamed (e.g. did you write 'one-liner' or 'oneLiner'?)"));
+            "'one_liner' absent or misnamed (e.g. did you write 'one-liner' or 'oneLiner'?)"));
         } else if (fm.oneLiner().length() > 120) {
           failures.add(new Failure(relPath, "ONE_LINER_TOO_LONG",
-              "one_liner length=" + fm.oneLiner().length() + " (limit 120)"));
+            "one_liner length=" + fm.oneLiner().length() + " (limit 120)"));
         }
 
         // requirementsCompleted is normalized to List.of() by the compact constructor in
@@ -170,23 +171,23 @@ public final class DocConsistencyLint {
         // surface here as MISSING_REQUIRED_FIELD.
         if (fm.requirementsCompleted().isEmpty()) {
           failures.add(new Failure(relPath, "MISSING_REQUIRED_FIELD",
-              "'requirements_completed' absent, misnamed, or empty"));
+            "'requirements_completed' absent, misnamed, or empty"));
         } else {
           for (String reqId : fm.requirementsCompleted()) {
             if (reqId == null || !REQ_ID_SHAPE.matcher(reqId).matches()) {
               failures.add(new Failure(relPath, "REQ_ID_SHAPE",
-                  "requirements_completed entry '" + reqId
-                      + "' does not match ^[A-Z]+-[0-9]+$"));
+                "requirements_completed entry '" + reqId
+                  + "' does not match ^[A-Z]+-[0-9]+$"));
             } else {
               claimedReqIds.add(reqId);
               // 4. Drift detection (D-06): forward + orphan, per claim.
               if (!allKnownReqIds.contains(reqId)) {
                 failures.add(new Failure(relPath, "DRIFT_ORPHAN",
-                    "requirements_completed entry '" + reqId
-                        + "' does not appear in REQUIREMENTS.md active checkbox section"));
+                  "requirements_completed entry '" + reqId
+                    + "' does not appear in REQUIREMENTS.md active checkbox section"));
               } else if (requirementsUnchecked.contains(reqId)) {
                 failures.add(new Failure(relPath, "DRIFT_STALE_FORWARD",
-                    "REQ-ID '" + reqId + "' claimed by SUMMARY but REQUIREMENTS.md still '[ ]'"));
+                  "REQ-ID '" + reqId + "' claimed by SUMMARY but REQUIREMENTS.md still '[ ]'"));
               }
             }
           }
@@ -198,10 +199,10 @@ public final class DocConsistencyLint {
           for (int i = 0; i < fm.decisions().size(); i++) {
             SummaryFrontmatter.DecisionEntry e = fm.decisions().get(i);
             if (e == null || e.topic() == null || e.topic().isBlank()
-                || e.decision() == null || e.decision().isBlank()
-                || e.rationale() == null || e.rationale().isBlank()) {
+              || e.decision() == null || e.decision().isBlank()
+              || e.rationale() == null || e.rationale().isBlank()) {
               failures.add(new Failure(relPath, "DECISIONS_SHAPE",
-                  "decisions[" + i + "] missing or blank topic/decision/rationale"));
+                "decisions[" + i + "] missing or blank topic/decision/rationale"));
             }
           }
         }
@@ -212,8 +213,8 @@ public final class DocConsistencyLint {
     for (String checkedReq : requirementsChecked) {
       if (!claimedReqIds.contains(checkedReq)) {
         failures.add(new Failure("REQUIREMENTS.md", "DRIFT_STALE_REVERSE",
-            "REQ-ID '" + checkedReq + "' is '[x]' in REQUIREMENTS.md but no SUMMARY's"
-                + " requirements_completed lists it"));
+          "REQ-ID '" + checkedReq + "' is '[x]' in REQUIREMENTS.md but no SUMMARY's"
+            + " requirements_completed lists it"));
       }
     }
 
@@ -225,11 +226,11 @@ public final class DocConsistencyLint {
    * Records {@code PARSE_ERROR} on malformed frontmatter or YAML mapping failure (B-07).
    */
   private static Optional<SummaryFrontmatter> parseFrontmatter(
-      Path summaryFile, List<Failure> failures) throws IOException {
+    Path summaryFile, List<Failure> failures) throws IOException {
     String content = Files.readString(summaryFile);
     if (!content.startsWith("---\n")) {
       failures.add(new Failure(summaryFile.toString(), "PARSE_ERROR",
-          "Frontmatter missing opening '---' delimiter at file head"));
+        "Frontmatter missing opening '---' delimiter at file head"));
       return Optional.empty();
     }
     int secondDelim = content.indexOf("\n---\n", 4);
@@ -237,7 +238,7 @@ public final class DocConsistencyLint {
       int eofDelim = content.indexOf("\n---", 4);
       if (eofDelim < 0 || eofDelim != content.length() - 4) {
         failures.add(new Failure(summaryFile.toString(), "PARSE_ERROR",
-            "Frontmatter missing closing '---' delimiter"));
+          "Frontmatter missing closing '---' delimiter"));
         return Optional.empty();
       }
       secondDelim = eofDelim;
