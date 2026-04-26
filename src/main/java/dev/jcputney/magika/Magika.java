@@ -389,6 +389,6 @@ public final class Magika implements AutoCloseable {
   private static MagikaResult toResult(ResolvedLabels r) {
     MagikaPrediction dl = new MagikaPrediction(r.dlLabel(), r.score(), OverwriteReason.NONE);
     MagikaPrediction out = new MagikaPrediction(r.outputLabel(), r.score(), r.overwriteReason());
-    return new MagikaResult(dl, out, r.score());
+    return new MagikaResult(dl, out, r.score(), Status.OK);
   }
 }
