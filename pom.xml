@@ -59,6 +59,7 @@
         <version.plugin.javadoc>3.12.0</version.plugin.javadoc>
         <version.plugin.spotless>3.4.0</version.plugin.spotless>
         <version.plugin.license>5.0.0</version.plugin.license>
+        <version.plugin.invoker>3.9.1</version.plugin.invoker>
     </properties>
 
     <dependencies>
@@ -131,6 +132,7 @@
                         <org.slf4j.simpleLogger.defaultLogLevel>info</org.slf4j.simpleLogger.defaultLogLevel>
                         <org.slf4j.simpleLogger.showDateTime>false</org.slf4j.simpleLogger.showDateTime>
                     </systemPropertyVariables>
+                    <useModulePath>false</useModulePath>
                 </configuration>
             </plugin>
             <plugin>
@@ -155,7 +157,27 @@
                         <org.slf4j.simpleLogger.defaultLogLevel>info</org.slf4j.simpleLogger.defaultLogLevel>
                         <org.slf4j.simpleLogger.showDateTime>false</org.slf4j.simpleLogger.showDateTime>
                     </systemPropertyVariables>
+                    <useModulePath>false</useModulePath>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <version>${version.plugin.invoker}</version>
+                <configuration>
+                    <projectsDirectory>src/it</projectsDirectory>
+                    <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+                    <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>jpms-consumer-it</id>
+                        <goals>
+                            <goal>install</goal>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
