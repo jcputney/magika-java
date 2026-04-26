@@ -30,22 +30,29 @@ import org.junit.jupiter.api.Test;
  *
  * <p>Tagged {@code parity} because the test constructs a real {@link Magika} (which requires the
  * ORT native load). Uses {@code slf4j-simple} as a test-scope binding (see pom.xml) writing to
- * {@code System.err}; the test captures stderr during construction and asserts the log line is
- * present.
+ * {@code System.err}; the test captures stderr during the identify* call and asserts the log line
+ * is present.
  *
  * <p><strong>D-11 (post-WR-01) is exactly three events:</strong>
+ *
  * <ul>
- * <li>Load INFO (5 fields: name, version, sha256, contentTypeCount, loadMs) — in
- * {@link Magika#Magika(MagikaBuilder)}.
+ * <li>Load INFO (5 fields: name, version, sha256, contentTypeCount, loadMs) — in {@link
+ * Magika#ensureEngine()} (REF-04: deferred from constructor to first identify*).
  * <li>Close INFO (3 fields: name, version, sha256) — in {@link Magika#close()}, fires only on
  * first close (idempotency guard).
- * <li>Error events: ERROR on SHA mismatch in
- * {@link dev.jcputney.magika.inference.onnx.OnnxModelLoader} (covered by
- * {@code OnnxModelLoaderTest}).
+ * <li>Error events: ERROR on SHA mismatch in {@link
+ * dev.jcputney.magika.inference.onnx.OnnxModelLoader} (covered by {@code
+ *       OnnxModelLoaderTest}).
  * </ul>
  *
  * <p>The previous per-call DEBUG-on-overwrite-hit event was removed in 01-07 (WR-01) because it
  * violated D-11's three-event contract and CLAUDE.md's "no per-call logging payloads" rule.
+ *
+ * <p><strong>REF-04 amendment:</strong> The load INFO event is now fired inside {@code
+ * ensureEngine()} — NOT in the constructor. A {@code Magika.create()} call with no subsequent
+ * {@code identify*} call would capture zero load events. This test calls {@code
+ * identifyBytes(new byte[]{'A'})} before {@code close()} to trigger the load INFO exactly once,
+ * preserving the count-of-one assertion.
  */
 @Tag("parity")
 class MagikaLoggingTest {
@@ -57,7 +64,10 @@ class MagikaLoggingTest {
     try {
       System.setErr(new PrintStream(buf));
       // slf4j-simple (test-scope) writes INFO+ to stderr on dev.jcputney.magika.Magika logger.
+      // REF-04: load INFO fires on first identify*, not on construction — call identifyBytes to
+      // trigger it before asserting the count.
       Magika m = Magika.create();
+      m.identifyBytes(new byte[] {'A'}); // triggers ensureEngine() → D-11 load INFO fires once
       m.close();
       m.close(); // second close must be a no-op (no second close log)
     } finally {
