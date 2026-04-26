@@ -36,12 +36,16 @@ import dev.jcputney.magika.postprocess.ResolvedLabels;
 import dev.jcputney.magika.postprocess.Utf8Validator;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,41 +83,38 @@ public final class Magika implements AutoCloseable {
   private static final String MODEL_NAME = "standard_v3_3";
   private static final String MODEL_VERSION = "v3_3";
 
-  private final InferenceEngine engine;
+  // REF-04: volatile + guarded by engineLock; written only inside synchronized(engineLock).
+  // Fast-path readers see non-null after the volatile write without entering the synchronized block.
+  private volatile InferenceEngine engine = null;
+  private final Object engineLock = new Object(); // private final — never publicly reachable (anti-pattern: synchronizing on `this`)
   private final ThresholdConfig config;
   private final ContentTypeRegistry registry;
   private final PredictionMode mode;
-  private final String modelSha256;
+  private final String modelSha256; // A-06: populated eagerly in constructor (~10-15 ms)
+  private final byte[] modelBytes; // A-06: held until ensureEngine() consumes them on first identify*
+  private final int expectedTokens; // pre-computed from config to avoid recomputing in ensureEngine
   private final List<ContentTypeLabel> outputContentTypes;
   private volatile boolean closed = false;
 
   Magika(MagikaBuilder builder) {
     Objects.requireNonNull(builder, "builder");
-    long startMs = System.currentTimeMillis();
     this.config = MagikaConfigLoader.loadBundled();
     this.registry = MagikaConfigLoader.loadBundledRegistry();
     this.mode = builder.predictionMode();
 
-    // DEBT-02 IN-01: load() returns bytes + verified SHA-256 in one call; no recompute.
+    // A-06: eager bytes + SHA-256. Defer ONLY the OrtSession.create() inside OnnxInferenceEngine.
+    // OnnxModelLoader.load() reads ~3 MiB and computes SHA-256 (~10-15 ms) — within SC-4 budget.
     OnnxModelLoader.LoadedModel loaded = OnnxModelLoader.load();
     this.modelSha256 = loaded.sha256();
-
-    int expectedTokens = config.begSize() + config.midSize() + config.endSize();
-    this.engine = new OnnxInferenceEngine(loaded.bytes(), expectedTokens, config.targetLabelsSpace());
+    this.modelBytes = loaded.bytes();
+    this.expectedTokens = config.begSize() + config.midSize() + config.endSize();
 
     this.outputContentTypes = config.targetLabelsSpace().stream()
       .map(label -> new ContentTypeLabel(label, registry.get(label)))
       .collect(Collectors.toUnmodifiableList());
 
-    long loadMs = System.currentTimeMillis() - startMs;
-    // D-11 INFO: load event (5 fields) — fires exactly once per instance.
-    LOGGER.info(
-      "Magika loaded: name={} version={} sha256={} contentTypeCount={} loadMs={}",
-      MODEL_NAME,
-      MODEL_VERSION,
-      modelSha256,
-      outputContentTypes.size(),
-      loadMs);
+    // REF-04 / A-06: NO OnnxInferenceEngine construction here. NO D-11 load INFO here either —
+    // both deferred to ensureEngine() per Pitfall 3. The constructor is now <50ms warm-JVM (SC-4).
   }
 
   /** Zero-arg convenience (API-01) — equivalent to {@code Magika.builder().build()}. */
@@ -140,6 +141,7 @@ public final class Magika implements AutoCloseable {
   public MagikaResult identifyBytes(byte[] bytes) {
     Objects.requireNonNull(bytes, "bytes");
     checkOpen();
+    ensureEngine();
     return identifyInternal(new BytesInput(bytes), bytes, bytes.length);
   }
 
@@ -166,6 +168,7 @@ public final class Magika implements AutoCloseable {
   public MagikaResult identifyPath(Path path) {
     Objects.requireNonNull(path, "path");
     checkOpen();
+    ensureEngine();
     try {
       if (!Files.exists(path)) {
         throw new InvalidInputException(
@@ -222,6 +225,7 @@ public final class Magika implements AutoCloseable {
   public MagikaResult identifyStream(InputStream stream) {
     Objects.requireNonNull(stream, "stream");
     checkOpen();
+    ensureEngine();
     // CR-01 fix: materialize the stream into a byte[] BEFORE entering identifyInternal so the
     // small-file short-circuit (Pitfall 4 / POST-03) fires for empty / N<min_file_size_for_dl
     // streams. Without this, an empty or 1..7-byte stream would skip the smallBuffer guard
@@ -282,7 +286,11 @@ public final class Magika implements AutoCloseable {
       return;
     }
     closed = true;
-    engine.close();
+    // engine may be null if no identify* call was ever made (REF-04 / SC-5).
+    InferenceEngine local = engine;
+    if (local != null) {
+      local.close();
+    }
     // Do NOT close OrtEnvironment — process-wide singleton.
     // D-11 INFO: close event — fires exactly once per instance (idempotency guard above).
     LOGGER.info("Magika closed: name={} version={} sha256={}", MODEL_NAME, MODEL_VERSION, modelSha256);
@@ -292,6 +300,168 @@ public final class Magika implements AutoCloseable {
     if (closed) {
       throw new IllegalStateException("Magika has been closed"); // D-08 / API-11
     }
+  }
+
+  /**
+   * REF-04: Lazy first-call OrtSession construction. Synchronized-block primitive guarantees
+   * exactly one OrtSession created under N-thread first-use (SC-6). Fires the D-11 load INFO
+   * event exactly once per instance, on the first call.
+   *
+   * <p>Fast path: volatile read of engine; if non-null, return without entering synchronized
+   * block. Slow path: synchronized(engineLock) — guards against close() racing with first
+   * identify* (closed flag re-checked inside lock); if engine still null, construct and publish.
+   */
+  private InferenceEngine ensureEngine() {
+    InferenceEngine local = engine;
+    if (local != null) {
+      return local;
+    }
+    synchronized (engineLock) {
+      if (closed) {
+        throw new IllegalStateException("Magika has been closed");
+      }
+      if (engine == null) {
+        long startMs = System.currentTimeMillis();
+        InferenceEngine fresh =
+          new OnnxInferenceEngine(modelBytes, expectedTokens, config.targetLabelsSpace());
+        long loadMs = System.currentTimeMillis() - startMs;
+        // D-11 INFO: load event — fires exactly once per instance under lock (Pitfall 3).
+        LOGGER.info(
+          "Magika loaded: name={} version={} sha256={} contentTypeCount={} loadMs={}",
+          MODEL_NAME,
+          MODEL_VERSION,
+          modelSha256,
+          outputContentTypes.size(),
+          loadMs);
+        engine = fresh; // volatile write — publishes engine to fast-path readers
+      }
+      return engine;
+    }
+  }
+
+  /**
+   * Test-only accessor for SC-4 / SC-5 / SC-6 verification. Returns the current engine
+   * reference; null pre-first-identify, non-null post. Package-private — callers must reside in
+   * {@code dev.jcputney.magika}.
+   */
+  InferenceEngine engineForTest() {
+    return engine; // volatile read
+  }
+
+  /**
+   * Batch-identifies a list of files (REF-02). Returns a list of {@link MagikaResult} whose
+   * ordering matches the input list ({@code result.get(i)} corresponds to {@code paths.get(i)}).
+   *
+   * <p>Per-file failures surface as {@link MagikaResult} entries with a non-OK {@link Status}
+   * per the A-02 mapping:
+   *
+   * <ul>
+   * <li>{@link java.nio.file.NoSuchFileException} → {@link Status#FILE_NOT_FOUND_ERROR}
+   * <li>{@link java.nio.file.AccessDeniedException} → {@link Status#PERMISSION_ERROR}
+   * <li>any other {@link IOException}, {@link InvalidInputException}, or {@link
+   * InferenceException} → {@link Status#UNKNOWN}
+   * </ul>
+   *
+   * Failure results carry {@code dl=UNDEFINED}, {@code output=UNKNOWN}, {@code score=0.0},
+   * {@code overwriteReason=NONE}, and the mapped status.
+   *
+   * <p>{@link Error} and {@link IllegalStateException} (post-close) propagate — they are NOT
+   * caught and converted (D-15). Null elements in {@code paths} throw {@link NullPointerException}
+   * BEFORE any work runs — they are NOT converted to status=ERROR results (D-16).
+   *
+   * <p><b>Single-file callers:</b> prefer {@link #identifyPath} — {@code
+   * identifyPaths(List.of(p))} works correctly but pays unnecessary {@link ForkJoinPool}
+   * construction overhead (D-13).
+   *
+   * <p><b>Parallelism:</b> the default uses {@code Runtime.getRuntime().availableProcessors()}.
+   * Each call constructs a per-call {@link ForkJoinPool} (NOT the JVM-wide common pool — D-12).
+   * The pool is shut down in {@code finally}.
+   *
+   * <p><b>Thread safety:</b> safe to call concurrently across threads on a single {@link Magika}
+   * instance (API-10). Multiple concurrent {@code identifyPaths} calls each construct their own
+   * {@link ForkJoinPool} — they do not share state.
+   *
+   * @param paths the files to classify; not null; must not contain null elements
+   * @return a list of {@link MagikaResult} of the same size and order as {@code paths}
+   * @throws NullPointerException  if {@code paths} or any element is null (D-10 / D-16)
+   * @throws IllegalStateException if this instance has been closed (API-11)
+   */
+  public List<MagikaResult> identifyPaths(List<Path> paths) {
+    return identifyPaths(paths, Runtime.getRuntime().availableProcessors());
+  }
+
+  /**
+   * Batch overload with explicit parallelism. See {@link #identifyPaths(List)} for the full
+   * contract. Pass {@code 1} to force serial execution.
+   *
+   * @param paths       the files to classify; not null; must not contain null elements
+   * @param parallelism the parallelism bound; must be {@code >= 1}
+   * @throws NullPointerException     if {@code paths} or any element is null
+   * @throws IllegalArgumentException if {@code parallelism < 1}
+   * @throws IllegalStateException    if this instance has been closed
+   */
+  public List<MagikaResult> identifyPaths(List<Path> paths, int parallelism) {
+    Objects.requireNonNull(paths, "paths");
+    if (parallelism < 1) {
+      throw new IllegalArgumentException("parallelism must be >= 1, got " + parallelism);
+    }
+    // D-16: null-element pre-validation BEFORE pool construction. NPE surfaces with no partial
+    // results.
+    for (int i = 0; i < paths.size(); i++) {
+      if (paths.get(i) == null) {
+        throw new NullPointerException("paths[" + i + "]");
+      }
+    }
+    checkOpen();
+    ensureEngine(); // prime lazy load before fork — first identify* race funneled through one lock
+
+    int n = paths.size();
+    MagikaResult[] out = new MagikaResult[n];
+    ForkJoinPool pool = new ForkJoinPool(parallelism);
+    try {
+      pool
+        .submit(
+          () -> IntStream.range(0, n)
+            .parallel()
+            .forEach(i -> out[i] = identifyOneForBatch(paths.get(i))))
+        .join();
+    } finally {
+      pool.shutdown();
+    }
+    return Arrays.asList(out);
+  }
+
+  /**
+   * Batch per-file helper. Catches the targeted exception set per A-02 / D-15 and maps to a
+   * non-OK {@link Status}. {@link Error}, {@link IllegalStateException}, and other {@link
+   * RuntimeException}s propagate.
+   */
+  private MagikaResult identifyOneForBatch(Path path) {
+    try {
+      return identifyPath(path); // single-call → status=OK on success per Plan 03-01
+    } catch (InvalidInputException iie) {
+      Throwable cause = iie.getCause();
+      if (cause instanceof NoSuchFileException) {
+        return toErrorResult(Status.FILE_NOT_FOUND_ERROR);
+      }
+      if (cause instanceof AccessDeniedException) {
+        return toErrorResult(Status.PERMISSION_ERROR);
+      }
+      if (cause instanceof IOException) {
+        return toErrorResult(Status.UNKNOWN);
+      }
+      return toErrorResult(Status.UNKNOWN); // InvalidInputException with no IOException cause
+    } catch (InferenceException ie) {
+      return toErrorResult(Status.UNKNOWN);
+    }
+    // Error, IllegalStateException, RuntimeException propagate per D-15.
+  }
+
+  private static MagikaResult toErrorResult(Status status) {
+    MagikaPrediction dl = new MagikaPrediction(ContentTypeLabel.UNDEFINED, 0.0, OverwriteReason.NONE);
+    MagikaPrediction out =
+      new MagikaPrediction(ContentTypeLabel.UNKNOWN, 0.0, OverwriteReason.NONE);
+    return new MagikaResult(dl, out, 0.0, status);
   }
 
   private MagikaResult identifyInternal(InputSource src, byte[] smallBuffer, int knownLength) {
