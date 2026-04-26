@@ -35,18 +35,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public enum Status {
 
   /** Successful detection — populated on every single-call success and on batch successes. */
-  @JsonProperty("ok")
-  OK,
+  @JsonProperty("ok") OK,
 
   /** Batch-only — caller passed a path that does not exist (NoSuchFileException). */
-  @JsonProperty("file_not_found_error")
-  FILE_NOT_FOUND_ERROR,
+  @JsonProperty("file_not_found_error") FILE_NOT_FOUND_ERROR,
 
   /** Batch-only — caller passed a path that is unreadable (AccessDeniedException). */
-  @JsonProperty("permission_error")
-  PERMISSION_ERROR,
+  @JsonProperty("permission_error") PERMISSION_ERROR,
 
   /** Batch-only — any other failure (IOException / InvalidInputException / InferenceException). */
-  @JsonProperty("unknown")
-  UNKNOWN
+  @JsonProperty("unknown") UNKNOWN
 }

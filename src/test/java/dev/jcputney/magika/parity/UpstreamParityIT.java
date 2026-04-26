@@ -228,14 +228,18 @@ class UpstreamParityIT {
   }
 
   /**
-   * The parity comparator — strict equality on both labels and on both overwriteReason fields,
-   * {@code 1e-4} tolerance on score. Failure messages carry enough context to debug without
-   * re-reading the fixture or sidecar.
+   * The parity comparator — strict equality on both labels, both overwriteReason fields, and
+   * status; {@code 1e-4} tolerance on score. Failure messages carry enough context to debug
+   * without re-reading the fixture or sidecar.
    *
    * <p>TEST-11 / Plan 02-02: {@code reasonOk} (output side) and {@code dlReasonOk} (dl side, the
    * by-construction NONE invariant) are strict-equality checks. Without {@code reasonOk}, a
    * {@code randomtxt → txt} OVERWRITE_MAP fixture is indistinguishable from native txt content;
    * making the reason load-bearing is what gives TEST-11 its coverage value.
+   *
+   * <p>REF-01 / Plan 03-01: {@code statusOk} is a strict-equality check on the new status field.
+   * All 35 v0.2 sidecars carry {@code status="ok"} per A-04; non-OK Status values are exercised
+   * only by {@code BatchIdentifyIT} (Java-only synthetic-error tests, no oracle counterpart).
    */
   private static void assertParity(Path fixture, MagikaResult actual) throws IOException {
     ExpectedResult expected = FixtureLoader.loadExpected(fixture);
@@ -260,27 +264,36 @@ class UpstreamParityIT {
     String actualDlReason = actual.dl().overwriteReason().name();
     boolean dlReasonOk = expectedDlReason.equals(actualDlReason);
 
-    if (dlOk && outOk && scoreOk && reasonOk && dlReasonOk) {
+    // REF-01 / A-04: strict Status equality. All 35 v0.2 sidecars carry status="ok"; non-OK
+    // values appear only in BatchIdentifyIT (Java-only synthetic-error tests; no oracle counterpart).
+    String expectedStatus = expected.status();
+    String actualStatus = actual.status().name().toLowerCase(java.util.Locale.ROOT);
+    boolean statusOk = expectedStatus.equals(actualStatus);
+
+    if (dlOk && outOk && scoreOk && reasonOk && dlReasonOk && statusOk) {
       return;
     }
 
-    // TEST-05 / TEST-08 human-readable diff with reproducer. The "[reason mismatch]" banner makes
-    // overwriteReason drift visible at a glance without parsing the expected/actual lines below.
+    // TEST-05 / TEST-08 human-readable diff with reproducer. The "[reason mismatch]" and
+    // "[status mismatch]" banners make drift visible at a glance without parsing the lines below.
     String reasonBanner = (reasonOk && dlReasonOk) ? "" : " [reason mismatch]";
+    String statusBanner = statusOk ? "" : " [status mismatch]";
     String msg = String.format(
-      "%nParity disagreement:%s%n"
+      "%nParity disagreement:%s%s%n"
         + "  fixture:    %s%n"
-        + "  expected:   dl=%s (%.6f, %s), output=%s (%.6f, %s)%n"
-        + "  actual:     dl=%s (%.6f, %s), output=%s (%.6f, %s)%n"
+        + "  expected:   dl=%s (%.6f, %s), output=%s (%.6f, %s), status=%s%n"
+        + "  actual:     dl=%s (%.6f, %s), output=%s (%.6f, %s), status=%s%n"
         + "  tolerance:  |delta| < %.0e (score delta = %.6e)%n"
         + "  oracle:     magika==%s @ upstream SHA %s%n"
         + "  reproducer: Magika m = Magika.create(); m.identifyPath(Path.of(\"%s\"));",
-      reasonBanner,
+      reasonBanner, statusBanner,
       FIXTURES_ROOT.relativize(fixture),
       expected.dl().label(), expected.dl().score(), expectedDlReason,
       expected.output().label(), expected.output().score(), expectedOutReason,
+      expectedStatus,
       actDlLabel, actual.dl().score(), actualDlReason,
       actOutLabel, actScore, actualOutReason,
+      actualStatus,
       SCORE_TOLERANCE, expected.score() - actScore,
       expected.upstreamMagikaVersion(), expected.upstreamMagikaGitSha(),
       fixture.toAbsolutePath().normalize());

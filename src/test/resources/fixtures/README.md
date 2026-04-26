@@ -33,13 +33,14 @@ checked-in script (project rule: no helper scripts / CLI utilities).
    `magika-java` ships.)
 
 2. For each fixture, call the Python API directly so `overwrite_reason`
-   is available (the CLI `--json` output omits it):
+   and `status` are available (the CLI `--json` output omits them):
 
    ```python
    from magika import Magika
    m = Magika()
    r = m.identify_path(fixture_path)
-   pred = r.prediction   # .dl / .output / .score / .overwrite_reason
+   pred = r.prediction      # .dl / .output / .score / .overwrite_reason
+   status = r.status.value  # "ok" / "file_not_found_error" / ... — lowercase snake_case
    ```
 
 3. Write each sidecar with the D-04 schema (sorted keys, 2-space indent):
@@ -49,6 +50,7 @@ checked-in script (project rule: no helper scripts / CLI utilities).
      "dl": { "label": "<label>", "score": <float>, "overwriteReason": "NONE" },
      "output": { "label": "<label>", "score": <float>, "overwriteReason": "<NONE|LOW_CONFIDENCE|OVERWRITE_MAP>" },
      "score": <float>,
+     "status": "ok",
      "upstream_magika_version": "1.0.2",
      "upstream_magika_git_sha": "363a44183a6f300d5d7143d94a19e6a841671650"
    }
@@ -63,6 +65,15 @@ checked-in script (project rule: no helper scripts / CLI utilities).
    - Upstream `overwrite_reason` values are lowercase (`'none'`,
      `'low_confidence'`, `'overwrite_map'`); the sidecar writes them
      uppercase to match our Java `OverwriteReason` enum names.
+   - `status` is the verbatim upstream Python `MagikaResult.status.value`
+     — lowercase snake_case (`"ok"` | `"file_not_found_error"` |
+     `"permission_error"` | `"unknown"`). All 35 fixtures land as `"ok"`
+     because all paths are present and readable. The Java enum `Status`
+     mirrors these values via `@JsonProperty` (REF-01 / Plan 03-01 — see
+     A-01). If any regenerated sidecar carries a non-OK status, the
+     fixture file is unreadable at regen time (Pitfall 4 — investigate
+     fixture content, NOT the algorithm).
+     Capture via: `status = r.status.value  # "ok" / "file_not_found_error" / ...`
 
 4. Update `ORACLE_VERSION` if the pin changed.
 5. Run `mvn -B -ntp verify` on all three CI legs before committing.
