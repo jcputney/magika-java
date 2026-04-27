@@ -26,7 +26,6 @@ import dev.jcputney.magika.inference.InferenceResult;
 import dev.jcputney.magika.io.ByteWindowExtractor;
 import dev.jcputney.magika.io.BytesInput;
 import dev.jcputney.magika.postprocess.LabelResolver;
-import dev.jcputney.magika.postprocess.OverwriteReason;
 import dev.jcputney.magika.postprocess.PredictionMode;
 import dev.jcputney.magika.postprocess.ResolvedLabels;
 import java.io.IOException;

@@ -18,6 +18,8 @@ package dev.jcputney.magika.postprocess;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.jcputney.magika.ContentTypeLabel;
+import dev.jcputney.magika.OverwriteReason;
 import dev.jcputney.magika.config.ContentTypeRegistry;
 import dev.jcputney.magika.config.ThresholdConfig;
 import java.util.List;

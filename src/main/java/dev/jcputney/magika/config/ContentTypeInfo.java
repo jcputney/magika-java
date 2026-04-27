@@ -71,7 +71,7 @@ public record ContentTypeInfo(
 
   /**
    * Sentinel for empty-file branch (size 0). Cite {@code docs/algorithm-notes.md} §"Small-file
-   * branches" (DEBT-01 / WR-04 — relocated from {@code postprocess.ContentTypeLabel}).
+   * branches" (DEBT-01 / WR-04 — relocated from {@link dev.jcputney.magika.ContentTypeLabel}).
    *
    * <p>Field values are byte-identical to the bundled {@code content_types_kb.min.json} row for
    * label {@code "empty"} (oracle-pinned upstream {@code 363a44183a6f300d5d7143d94a19e6a841671650}).
@@ -89,7 +89,7 @@ public record ContentTypeInfo(
 
   /**
    * Sentinel for unknown / non-text fallback. Cite {@code docs/algorithm-notes.md} §"Small-file
-   * branches" (DEBT-01 / WR-04 — relocated from {@code postprocess.ContentTypeLabel}).
+   * branches" (DEBT-01 / WR-04 — relocated from {@link dev.jcputney.magika.ContentTypeLabel}).
    *
    * <p>Field values are byte-identical to the bundled {@code content_types_kb.min.json} row for
    * label {@code "unknown"}. The v0.1 hardcoded description {@code "Unknown binary"} drifted from
@@ -107,7 +107,7 @@ public record ContentTypeInfo(
   /**
    * Sentinel for plain-text fallback (small-file UTF-8-decode branch + LOW_CONFIDENCE override).
    * Cite {@code docs/algorithm-notes.md} §"Small-file branches" and §"Overwrite-map ordering"
-   * (DEBT-01 / WR-04 — relocated from {@code postprocess.ContentTypeLabel}).
+   * (DEBT-01 / WR-04 — relocated from {@link dev.jcputney.magika.ContentTypeLabel}).
    *
    * <p>Field values are byte-identical to the bundled {@code content_types_kb.min.json} row for
    * label {@code "txt"}. The v0.1 hardcoded description {@code "Plain text"} drifted from the

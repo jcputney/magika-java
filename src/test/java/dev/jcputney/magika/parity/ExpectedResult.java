@@ -17,7 +17,7 @@
 package dev.jcputney.magika.parity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import dev.jcputney.magika.postprocess.OverwriteReason;
+import dev.jcputney.magika.OverwriteReason;
 import java.util.Objects;
 
 /**

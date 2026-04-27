@@ -16,6 +16,8 @@
 
 package dev.jcputney.magika.postprocess;
 
+import dev.jcputney.magika.ContentTypeLabel;
+import dev.jcputney.magika.OverwriteReason;
 import dev.jcputney.magika.config.ContentTypeRegistry;
 import dev.jcputney.magika.config.ThresholdConfig;
 

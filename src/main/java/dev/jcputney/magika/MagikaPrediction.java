@@ -16,8 +16,6 @@
 
 package dev.jcputney.magika;
 
-import dev.jcputney.magika.postprocess.ContentTypeLabel;
-import dev.jcputney.magika.postprocess.OverwriteReason;
 import java.util.Objects;
 
 /**

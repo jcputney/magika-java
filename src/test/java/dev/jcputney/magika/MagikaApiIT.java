@@ -19,7 +19,6 @@ package dev.jcputney.magika;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import dev.jcputney.magika.postprocess.ContentTypeLabel;
 import dev.jcputney.magika.postprocess.PredictionMode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -234,7 +233,7 @@ class MagikaApiIT {
         bestGuessResult.dl().label().label(),
         bestGuessResult.output().label().label(),
         bestGuessResult.score())
-      .isNotEqualTo(dev.jcputney.magika.postprocess.OverwriteReason.LOW_CONFIDENCE);
+      .isNotEqualTo(dev.jcputney.magika.OverwriteReason.LOW_CONFIDENCE);
   }
 
   @Test

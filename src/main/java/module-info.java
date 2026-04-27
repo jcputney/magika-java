@@ -22,19 +22,22 @@
  * postprocess, internal) are NOT exported; consumers referencing them will fail at compile time on
  * the module path (verified by src/it/jpms-consumer-negative).
  *
+ * <p>The {@code config} package is opened to {@code com.fasterxml.jackson.databind} so Jackson
+ * can reflect on {@code ThresholdConfig} / {@code ContentTypeInfo} records during model load
+ * (Phase 5 peer-review fix). Records' canonical constructors are public, so Jackson 2.12+ does
+ * not need {@code setAccessible(true)} to deserialize, but we open defensively for forward-
+ * compatibility with future record-shape changes (e.g. private fields or non-canonical
+ * constructors).
+ *
  * <p>No {@code requires transitive} (D-21) — Jackson and ORT are implementation details, not part
  * of the consumer contract.
  */
 module dev.jcputney.magika {
   exports dev.jcputney.magika;
 
+  opens dev.jcputney.magika.config to com.fasterxml.jackson.databind;
+
   requires com.fasterxml.jackson.databind;
   requires com.microsoft.onnxruntime;
   requires org.slf4j;
-
-  // Test-only — required at compile time for
-  // src/test/java/.../_meta/CentralPublishVerificationTest.java's post-publish HTTP probe
-  // (Plan 05-03 Layer (d)). java.net.http is a JDK platform module, not a third-party
-  // dependency; consumers are unaffected (this is `requires`, not `requires transitive`).
-  requires java.net.http;
 }

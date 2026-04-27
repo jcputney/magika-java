@@ -16,6 +16,7 @@
 
 package dev.jcputney.magika.postprocess;
 
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.jcputney.magika.config.ContentTypeInfo;

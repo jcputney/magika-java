@@ -19,7 +19,7 @@ package dev.jcputney.magika.parity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import dev.jcputney.magika.postprocess.OverwriteReason;
+import dev.jcputney.magika.OverwriteReason;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
