@@ -60,6 +60,11 @@
         <version.plugin.spotless>3.4.0</version.plugin.spotless>
         <version.plugin.license>5.0.0</version.plugin.license>
         <version.plugin.invoker>3.9.1</version.plugin.invoker>
+
+        <version.plugin.gpg>3.2.8</version.plugin.gpg>
+        <version.plugin.release>3.3.1</version.plugin.release>
+        <version.plugin.central-publishing>0.10.0</version.plugin.central-publishing>
+        <version.plugin.cyclonedx>2.9.1</version.plugin.cyclonedx>
     </properties>
 
     <dependencies>
@@ -112,6 +117,21 @@
     </dependencies>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>${version.plugin.release}</version>
+                    <configuration>
+                        <arguments>-ntp</arguments>
+                        <scmCommentPrefix />
+                        <tagNameFormat>v@{project.version}</tagNameFormat>
+                        <releaseProfiles>central,sign</releaseProfiles>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -266,4 +286,77 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>sign</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${version.plugin.gpg}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals><goal>sign</goal></goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>central</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${version.plugin.central-publishing}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <!-- v0.3.0 first-publish safety per P-01: operator clicks Publish manually
+                                 in Central Portal UI after inspection. NEVER pair autoPublish=false
+                                 with waitUntil=published — that deadlocks the workflow for the GH
+                                 Actions 6h timeout. Flip both to autoPublish=true + waitUntil=published
+                                 in a follow-up commit before v0.3.1. -->
+                            <autoPublish>false</autoPublish>
+                            <waitUntil>validated</waitUntil>
+                            <deploymentName>${project.artifactId}:${project.version}</deploymentName>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.cyclonedx</groupId>
+                        <artifactId>cyclonedx-maven-plugin</artifactId>
+                        <version>${version.plugin.cyclonedx}</version>
+                        <executions>
+                            <execution>
+                                <id>build-sbom</id>
+                                <phase>package</phase>
+                                <goals><goal>makeBom</goal></goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <projectType>library</projectType>
+                            <schemaVersion>1.6</schemaVersion>
+                            <outputFormat>all</outputFormat>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>github</id>
+            <distributionManagement>
+                <repository>
+                    <id>github</id>
+                    <name>GitHub Packages</name>
+                    <url>https://maven.pkg.github.com/jcputney/magika-java</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 </project>
