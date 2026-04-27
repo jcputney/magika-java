@@ -31,4 +31,10 @@ module dev.jcputney.magika {
   requires com.fasterxml.jackson.databind;
   requires com.microsoft.onnxruntime;
   requires org.slf4j;
+
+  // Test-only — required at compile time for
+  // src/test/java/.../_meta/CentralPublishVerificationTest.java's post-publish HTTP probe
+  // (Plan 05-03 Layer (d)). java.net.http is a JDK platform module, not a third-party
+  // dependency; consumers are unaffected (this is `requires`, not `requires transitive`).
+  requires java.net.http;
 }
