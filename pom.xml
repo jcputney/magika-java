@@ -6,7 +6,7 @@
 
     <groupId>dev.jcputney</groupId>
     <artifactId>magika-java-parent</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>magika-java parent</name>
