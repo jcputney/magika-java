@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.0] - YYYY-MM-DD
+## [0.3.0] - 2026-04-27
 
 ### Added
 
@@ -31,8 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - This is the first artifact published to Maven Central. Pre-v0.3 versions (v0.1, v0.2)
   shipped as local-install only and are captured in git tag annotations (`v0.1`, `v0.2`)
   and in the `.planning/milestones/` archives. No `## [0.1.0]` / `## [0.2.0]` sections
-  appear here by design — see `README.md` `## Breaking changes in v0.2` for the v0.1→v0.2
-  source-break that landed in pre-Central history.
+  appear here by design — those versions had no external consumers.
 
 [Unreleased]: https://github.com/jcputney/magika-java/compare/v0.3.0...HEAD
 [0.3.0]: https://github.com/jcputney/magika-java/releases/tag/v0.3.0
