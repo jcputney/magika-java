@@ -52,5 +52,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: failsafe-reports-${{ runner.os }}
-          path: target/failsafe-reports/
+          path: '**/target/failsafe-reports/'
           retention-days: 7

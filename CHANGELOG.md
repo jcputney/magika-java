@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- MIME-focused `detectBytes`, `detectPath`, and `detectStream` APIs returning
+  `DetectedContentType`.
+- Allowlist verification APIs via `ExpectedContentTypes`, `VerificationResult`, and
+  `VerificationReason`.
+- Optional `dev.jcputney:magika-java-tika` artifact with an embedded-ONNX Apache Tika
+  `Detector` adapter and service-loader registration.
+
+### Changed
+
+- Project converted to a Maven reactor while preserving the core artifact coordinates
+  `dev.jcputney:magika-java`.
+
 ## [0.3.0] - 2026-04-27
 
 ### Added

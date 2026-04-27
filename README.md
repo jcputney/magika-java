@@ -31,6 +31,16 @@ Gradle:
 implementation 'dev.jcputney:magika-java:0.3.0'
 ```
 
+Optional Apache Tika adapter:
+
+```xml
+<dependency>
+  <groupId>dev.jcputney</groupId>
+  <artifactId>magika-java-tika</artifactId>
+  <version>0.3.0</version>
+</dependency>
+```
+
 JPMS module name: `dev.jcputney.magika`. If you consume via the module path,
 declare `requires dev.jcputney.magika;` in your `module-info.java`. Only the
 public API package is exported — the `inference`, `postprocess`, `io`, `config`,
@@ -103,6 +113,63 @@ List<MagikaResult> results = m.identifyPaths(paths);
 List<MagikaResult> results = m.identifyPaths(paths, /*parallelism=*/ 4);
 ```
 
+### Tika-style detection and verification
+
+For callers replacing `Tika.detect(...)`, use the `detect*` methods to get a
+MIME-focused view without giving up Magika metadata:
+
+```java
+DetectedContentType detected = m.detectPath(Path.of("/data/upload.bin"));
+System.out.println(detected.mimeType()); // e.g. "image/png"
+System.out.println(detected.label());    // e.g. "png"
+System.out.println(detected.group());    // e.g. "image"
+```
+
+For upload allowlists, use `verify*` with `ExpectedContentTypes`:
+
+```java
+VerificationResult result =
+    m.verifyPath(Path.of("/data/avatar"), ExpectedContentTypes.IMAGE);
+
+if (!result.accepted()) {
+  throw new IllegalArgumentException(
+      "Expected image, got " + result.detected().mimeType());
+}
+```
+
+Built-in expected sets are derived from Magika's bundled group metadata:
+`IMAGE`, `VIDEO`, `AUDIO`, `DOCUMENT`, `ARCHIVE`, `EXECUTABLE`, `CODE`, `TEXT`,
+`FONT`, and `APPLICATION`. Exact MIME allowlists are also supported:
+
+```java
+ExpectedContentTypes docs = ExpectedContentTypes.anyOf(
+    ExpectedContentTypes.DOCUMENT,
+    ExpectedContentTypes.ofMimeTypes("application/pdf"));
+```
+
+### Apache Tika adapter
+
+`dev.jcputney:magika-java-tika` provides a pure-Java
+`org.apache.tika.detect.Detector` implementation backed by the embedded ONNX
+model. It does not shell out to an installed `magika` executable.
+
+```java
+import dev.jcputney.magika.tika.MagikaTikaDetector;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
+
+try (MagikaTikaDetector detector = MagikaTikaDetector.builder().build();
+     InputStream in = Files.newInputStream(Path.of("/data/file"))) {
+  Metadata metadata = new Metadata();
+  MediaType type = detector.detect(in, metadata);
+}
+```
+
+By default, unknown / empty / `application/octet-stream` detections return
+`null` so Tika composite detector chains can continue. Detection metadata is
+written under Tika-compatible `magika:*` keys such as `magika:label`,
+`magika:mime_type`, `magika:group`, and `magika:score`.
+
 ### Batch detection
 
 `identifyPaths(List<Path>)` and `identifyPaths(List<Path>, int parallelism)`
@@ -144,7 +211,7 @@ Use `Magika.builder()` for non-default settings:
 
 ```java
 import dev.jcputney.magika.Magika;
-import dev.jcputney.magika.postprocess.PredictionMode;
+import dev.jcputney.magika.PredictionMode;
 
 try (Magika m = Magika.builder()
         .predictionMode(PredictionMode.HIGH_CONFIDENCE)
@@ -261,4 +328,4 @@ bundled-model provenance including upstream commit SHA and file SHA-256.
 
 Apache License 2.0. See [`LICENSE`](./LICENSE). Upstream `LICENSE` and
 `NOTICE` are vendored verbatim under
-`src/main/resources/dev/jcputney/magika/models/standard_v3_3/`.
+`magika-java/src/main/resources/dev/jcputney/magika/models/standard_v3_3/`.
