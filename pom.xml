@@ -79,12 +79,6 @@
             <version>${version.jackson}</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>${version.jackson}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${version.slf4j}</version>
@@ -343,6 +337,13 @@
                             <projectType>library</projectType>
                             <schemaVersion>1.6</schemaVersion>
                             <outputFormat>all</outputFormat>
+                            <!-- Phase 5 peer-review fix: by default the plugin skips when not deploying,
+                                 which means a plain 'mvn package' inside the central profile produces no
+                                 SBOM. release:perform runs deploy, but the SBOM attaches to the deploy
+                                 step rather than the package step; setting skipNotDeployed=false ensures
+                                 the SBOM is generated in package phase regardless and is therefore
+                                 available to attach to the bundle uploaded to Central. -->
+                            <skipNotDeployed>false</skipNotDeployed>
                         </configuration>
                     </plugin>
                 </plugins>
