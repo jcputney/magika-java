@@ -19,11 +19,56 @@ jobs:
     steps:
       - run: echo "branch guard ok — running release on main"
 
+  # Pre-flight: fast bash checks (~5s) BEFORE the 5-minute 3-OS verify matrix.
+  # Catches operator mistakes (forgot to bump pom, missing CHANGELOG section,
+  # README still on previous version) early so the operator doesn't wait through
+  # a green verify matrix only to discover the docs aren't ready.
+  preflight:
+    needs: guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Pre-flight checks (CHANGELOG / README / pom version)
+        run: |
+          set -euo pipefail
+          # 1) pom <version> must be -SNAPSHOT (release:prepare will rewrite to release version).
+          POM_VERSION=$(grep -oE '<version>[^<]+</version>' pom.xml | head -1 | sed 's|<[^>]*>||g')
+          if [[ ! "$POM_VERSION" =~ -SNAPSHOT$ ]]; then
+            echo "::error::pom.xml <version> must end in -SNAPSHOT before release:prepare; got: $POM_VERSION"
+            exit 1
+          fi
+          RELEASE_VERSION="${POM_VERSION%-SNAPSHOT}"
+          echo "Releasing $RELEASE_VERSION"
+
+          # 2) CHANGELOG.md must have a non-empty `## [VERSION]` section so release.yml's
+          # awk extractor (downstream) finds release notes for the GitHub Release.
+          if ! awk -v ver="$RELEASE_VERSION" '
+                $0 ~ "^## \\[" ver "\\]" { found=1; in_section=1; next }
+                /^## / { in_section=0 }
+                in_section && /\S/ { has_body=1 }
+                END { exit !(found && has_body) }
+              ' CHANGELOG.md; then
+            echo "::error::CHANGELOG.md is missing or has an empty ## [$RELEASE_VERSION] section"
+            exit 1
+          fi
+
+          # 3) README.md must reference the release version + must NOT contain <!-- pending --> markers.
+          if ! grep -F "$RELEASE_VERSION" README.md > /dev/null; then
+            echo "::error::README.md does not reference $RELEASE_VERSION (install snippet not updated?)"
+            exit 1
+          fi
+          if grep -F '<!-- pending -->' README.md > /dev/null; then
+            echo "::error::README.md still contains <!-- pending --> markers"
+            exit 1
+          fi
+
+          echo "✓ Pre-flight green for v$RELEASE_VERSION"
+
   # 3-OS verify gate per D-03 — release MUST NOT proceed if any OS leg is red.
   # Per P-02: the workflow_call reusable job in ci.yml contains ONLY the verify
   # matrix; no deploy step contaminates this gating call.
   verify:
-    needs: guard
+    needs: preflight
     uses: ./.github/workflows/ci.yml
     secrets: inherit
 
