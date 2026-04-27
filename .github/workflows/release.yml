@@ -1,0 +1,122 @@
+name: Release
+
+permissions:
+  contents: write
+  packages: write
+  statuses: write
+  checks: write
+
+on:
+  workflow_dispatch:
+
+jobs:
+  # 3-OS verify gate per D-03 — release MUST NOT proceed if any OS leg is red.
+  # Per P-02: the workflow_call reusable job in ci.yml contains ONLY the verify
+  # matrix; no deploy step contaminates this gating call.
+  verify:
+    uses: ./.github/workflows/ci.yml
+    secrets: inherit
+
+  release:
+    needs: verify
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.MAVEN_RELEASE_SSH_KEY }}
+
+      - uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: temurin
+          cache: maven
+          # OSSRH_USERNAME/OSSRH_TOKEN secrets generated at https://central.sonatype.com/account
+          # per P-07 (NOT legacy oss.sonatype.org). Secret names retain "OSSRH" for mjml-java
+          # parity, but the credentials are Central Portal.
+          server-id: central
+          server-username: OSSRH_USERNAME
+          server-password: OSSRH_TOKEN
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Publish package to Maven Central
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mvn -B -ntp -Dstyle.color=always release:prepare -P sign
+          cat release.properties
+          RELEASE_TAG=$(grep '^scm.tag=' release.properties | cut -d'=' -f2)
+          echo "RELEASE_TAG=${RELEASE_TAG}" >> "$GITHUB_ENV"
+          mvn -B -ntp -Dstyle.color=always release:perform -P sign \
+            -DconnectionUrl=scm:git:https://github.com/${{ github.repository }}.git
+          echo "Released ${RELEASE_TAG} 🚀" >> "$GITHUB_STEP_SUMMARY"
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+      - name: Extract CHANGELOG section + create GitHub Release
+        run: |
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+
+          # P-03: extract CHANGELOG section using awk -v form (no shell-escape gotchas).
+          # Brackets MUST be escaped (\\[ \\]) — naive grep "## [0.3.0]" treats them as
+          # a character class and matches wrong.
+          awk -v ver="$RELEASE_VERSION" '
+            $0 ~ "^## \\[" ver "\\]" { flag=1; next }
+            /^## / { flag=0 }
+            flag
+          ' CHANGELOG.md | sed '/./,$!d' > release-notes.md
+
+          # Fallback to commit list if CHANGELOG section is missing/empty
+          if [ ! -s release-notes.md ]; then
+            echo "WARN: CHANGELOG.md missing [${RELEASE_VERSION}] section — falling back to commit list"
+            PREV_TAG=$(git describe --tags --abbrev=0 "${RELEASE_TAG}^" 2>/dev/null || echo "")
+            if [ -n "$PREV_TAG" ]; then
+              git log "${PREV_TAG}..${RELEASE_TAG}" --pretty=format:"- %s" \
+                | grep -v '\[maven-release-plugin\]' > release-notes.md
+            else
+              git log "${RELEASE_TAG}" --pretty=format:"- %s" \
+                | grep -v '\[maven-release-plugin\]' > release-notes.md
+            fi
+          fi
+
+          # Optional Haiku-categorized commit appendix (Claude's Discretion: do NOT fail
+          # workflow on Anthropic API failure or absent ANTHROPIC_API_KEY).
+          PREV_TAG=$(git describe --tags --abbrev=0 "${RELEASE_TAG}^" 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            COMMITS=$(git log "${PREV_TAG}..${RELEASE_TAG}" --pretty=format:"- %s" | grep -v '\[maven-release-plugin\]')
+          else
+            COMMITS=$(git log "${RELEASE_TAG}" --pretty=format:"- %s" | grep -v '\[maven-release-plugin\]')
+          fi
+
+          if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+            APPENDIX=$(curl -sf https://api.anthropic.com/v1/messages \
+              -H "x-api-key: ${ANTHROPIC_API_KEY}" \
+              -H "anthropic-version: 2023-06-01" \
+              -H "content-type: application/json" \
+              -d "$(jq -n --arg commits "$COMMITS" '{
+                model: "claude-haiku-4-5-20251001",
+                max_tokens: 1024,
+                messages: [{role: "user", content: ("Categorize these git commits into release-notes appendix sections: ## New Features, ## Bug Fixes, ## Dependency Updates, ## Other Changes. Bulleted markdown lists. Only include sections with entries. No preamble.\n\nCommits:\n" + $commits)}]
+              }')" | jq -r '.content[0].text') || APPENDIX=""
+            if [ -n "$APPENDIX" ]; then
+              printf '\n---\n\n## Commit-level Changes\n\n%s\n' "$APPENDIX" >> release-notes.md
+            fi
+          fi
+
+          # Use --notes-file (NOT --notes) — CHANGELOG content can contain markdown
+          # that breaks shell-quoting if passed as a string.
+          gh release create "${RELEASE_TAG}" \
+            --title "${RELEASE_TAG}" \
+            --notes-file release-notes.md \
+            --latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
