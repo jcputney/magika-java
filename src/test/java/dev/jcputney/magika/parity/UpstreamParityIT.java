@@ -244,8 +244,8 @@ class UpstreamParityIT {
   private static void assertParity(Path fixture, MagikaResult actual) throws IOException {
     ExpectedResult expected = FixtureLoader.loadExpected(fixture);
 
-    String actDlLabel = actual.dl().label().label();
-    String actOutLabel = actual.output().label().label();
+    String actDlLabel = actual.dl().type().label();
+    String actOutLabel = actual.output().type().label();
     double actScore = actual.score();
 
     boolean dlOk = expected.dl().label().equals(actDlLabel);

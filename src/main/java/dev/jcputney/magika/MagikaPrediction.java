@@ -20,20 +20,25 @@ import java.util.Objects;
 
 /**
  * One prediction — either the raw deep-learning output ({@code dl}) or the post-processed output
- * ({@code output}) in a {@link MagikaResult}. Field names follow upstream Python
- * {@code MagikaPrediction} verbatim (API-06).
+ * ({@code output}) in a {@link MagikaResult}.
  *
- * @param label           the content-type label (never null; sentinels {@code UNDEFINED} /
+ * <p>The {@code type} accessor returns a {@link ContentTypeLabel} value (the upstream label string
+ * paired with its {@link dev.jcputney.magika.config.ContentTypeInfo} metadata row). Use
+ * {@code .type().label()} for the bare upstream string ("png", "txt", "unknown", ...). Diverges
+ * from upstream Python {@code MagikaPrediction.ct_label} naming for readability — the wrapper type
+ * carries metadata Python returns separately.
+ *
+ * @param type            the resolved content-type (never null; sentinels {@code UNDEFINED} /
  *                        {@code EMPTY} / {@code UNKNOWN} / {@code TXT} cover edge cases)
  * @param score           the prediction score in {@code [0.0, 1.0]}
- * @param overwriteReason why {@code output.label} differs from {@code dl.label} ({@code NONE} if
+ * @param overwriteReason why {@code output.type} differs from {@code dl.type} ({@code NONE} if
  *                        equal)
  */
 public record MagikaPrediction(
-                               ContentTypeLabel label, double score, OverwriteReason overwriteReason) {
+                               ContentTypeLabel type, double score, OverwriteReason overwriteReason) {
 
   public MagikaPrediction {
-    Objects.requireNonNull(label, "label");
+    Objects.requireNonNull(type, "type");
     Objects.requireNonNull(overwriteReason, "overwriteReason");
   }
 }

@@ -120,6 +120,6 @@ class ConcurrencyIT {
   }
 
   private static String labelOf(MagikaResult r) {
-    return r.output().label().label();
+    return r.output().type().label();
   }
 }

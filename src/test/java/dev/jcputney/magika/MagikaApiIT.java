@@ -105,7 +105,7 @@ class MagikaApiIT {
     try (Magika m = Magika.create()) {
       MagikaResult r = m.identifyPath(link);
       assertThat(r).isNotNull();
-      assertThat(r.output().label()).isNotNull();
+      assertThat(r.output().type()).isNotNull();
     }
   }
 
@@ -113,8 +113,8 @@ class MagikaApiIT {
   void empty_bytes_returns_EMPTY_sentinel() {
     try (Magika m = Magika.create()) {
       MagikaResult r = m.identifyBytes(new byte[0]);
-      assertThat(r.output().label().label()).isEqualTo("empty");
-      assertThat(r.dl().label()).isEqualTo(ContentTypeLabel.UNDEFINED);
+      assertThat(r.output().type().label()).isEqualTo("empty");
+      assertThat(r.dl().type()).isEqualTo(ContentTypeLabel.UNDEFINED);
     }
   }
 
@@ -122,8 +122,8 @@ class MagikaApiIT {
   void one_byte_invalid_utf8_returns_UNDEFINED_and_UNKNOWN() {
     try (Magika m = Magika.create()) {
       MagikaResult r = m.identifyBytes(new byte[] {(byte) 0xFF});
-      assertThat(r.dl().label()).isEqualTo(ContentTypeLabel.UNDEFINED);
-      assertThat(r.output().label().label()).isEqualTo("unknown");
+      assertThat(r.dl().type()).isEqualTo(ContentTypeLabel.UNDEFINED);
+      assertThat(r.output().type().label()).isEqualTo("unknown");
     }
   }
 
@@ -131,8 +131,8 @@ class MagikaApiIT {
   void one_byte_valid_ascii_returns_UNDEFINED_and_TXT() {
     try (Magika m = Magika.create()) {
       MagikaResult r = m.identifyBytes("A".getBytes(StandardCharsets.US_ASCII));
-      assertThat(r.dl().label()).isEqualTo(ContentTypeLabel.UNDEFINED);
-      assertThat(r.output().label().label()).isEqualTo("txt");
+      assertThat(r.dl().type()).isEqualTo(ContentTypeLabel.UNDEFINED);
+      assertThat(r.output().type().label()).isEqualTo("txt");
     }
   }
 
@@ -190,11 +190,11 @@ class MagikaApiIT {
       .as("PredictionMode.DEFAULT must be HIGH_CONFIDENCE (ALG-06)")
       .isSameAs(PredictionMode.HIGH_CONFIDENCE);
 
-    // (c) Behavioral difference: BEST_GUESS uses threshold=0.0 so output.label always equals
-    // dl.label for any label NOT in the overwrite map. Use 32 bytes of low-entropy binary that
+    // (c) Behavioral difference: BEST_GUESS uses threshold=0.0 so output.type always equals
+    // dl.type for any label NOT in the overwrite map. Use 32 bytes of low-entropy binary that
     // the model will assign some dl label with a potentially low confidence score. With
     // BEST_GUESS the score can never trigger a fallback (threshold=0.0 → score always ≥ 0.0),
-    // so output.label.label() must equal dl.label.label() whenever dl.label is not in the
+    // so output.type().label() must equal dl.type().label() whenever dl.type is not in the
     // overwrite map (randombytes/randomtxt are the only two entries, which themselves remap
     // deterministically). The assertion is structural: BEST_GUESS never falls back; the builder
     // wiring is proven by the contrast with HIGH_CONFIDENCE potentially falling back.
@@ -230,8 +230,8 @@ class MagikaApiIT {
         "BEST_GUESS must never produce LOW_CONFIDENCE fallback (threshold=0.0); "
           + "actual reason=%s, dl=%s, output=%s, score=%.4f",
         bestGuessResult.output().overwriteReason(),
-        bestGuessResult.dl().label().label(),
-        bestGuessResult.output().label().label(),
+        bestGuessResult.dl().type().label(),
+        bestGuessResult.output().type().label(),
         bestGuessResult.score())
       .isNotEqualTo(dev.jcputney.magika.OverwriteReason.LOW_CONFIDENCE);
   }
@@ -248,8 +248,8 @@ class MagikaApiIT {
     try (Magika m = Magika.create()) {
       MagikaResult r = m.identifyPath(p);
       assertThat(r).isNotNull();
-      assertThat(r.output().label()).isNotNull();
-      assertThat(r.dl().label()).isNotNull();
+      assertThat(r.output().type()).isNotNull();
+      assertThat(r.dl().type()).isNotNull();
       assertThat(r.score()).isBetween(0.0, 1.0001);
     }
   }

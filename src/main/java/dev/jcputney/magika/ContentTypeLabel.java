@@ -24,7 +24,7 @@ import java.util.Objects;
  * {@link ContentTypeInfo} row from {@code content_types_kb.min.json} (API-07).
  *
  * <p>Lives in the exported public API package so module-path consumers can chain
- * {@code result.output().label().label()} and dereference the {@link #label()} accessor without
+ * {@code result.output().type().label()} and dereference the {@link #label()} accessor without
  * needing access to a non-exported package. The {@link #info()} accessor returns
  * {@link ContentTypeInfo}, which currently lives in the internal {@code config} package — module-
  * path consumers can call {@code .info()} but cannot bind its return value to a typed variable.

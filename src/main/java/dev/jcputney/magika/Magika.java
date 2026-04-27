@@ -70,7 +70,7 @@ import org.slf4j.LoggerFactory;
  * <pre>{@code
  * try (Magika m = Magika.create()) {
  *   MagikaResult r = m.identifyPath(Path.of("/tmp/example.zip"));
- *   System.out.println(r.output().label().label() + " (" + r.score() + ")");
+ *   System.out.println(r.output().type().label() + " (" + r.score() + ")");
  * }
  * }</pre>
  */

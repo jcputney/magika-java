@@ -20,8 +20,9 @@ import java.util.Objects;
 
 /**
  * Result of a Magika identify call — matches upstream Python shape (API-05 + REF-01 / A-05).
- * Field names are {@code dl} / {@code output} / {@code score} / {@code status} exactly as
- * Python's {@code MagikaResult}; do not camel-case or rename.
+ * Top-level field names ({@code dl} / {@code output} / {@code score} / {@code status}) follow
+ * Python's {@code MagikaResult} verbatim; do not camel-case or rename. The nested prediction
+ * accessor diverges intentionally — see {@link MagikaPrediction}.
  *
  * @param dl     raw deep-learning prediction (never null; {@code UNDEFINED} sentinel when model
  *               skipped via the small-file branch)

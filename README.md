@@ -45,7 +45,7 @@ import java.nio.file.Path;
 
 try (Magika m = Magika.create()) {
   MagikaResult r = m.identifyPath(Path.of("/tmp/example.zip"));
-  System.out.println(r.output().label().label() + " (" + r.score() + ")");
+  System.out.println(r.output().type().label() + " (" + r.score() + ")");
 }
 ```
 
@@ -64,16 +64,19 @@ share** (see [Threading model](#threading-model)).
 | `score()` | `double` | Confidence score in `[0, 1]`. Same value as `output().score()`. |
 | `status()` | `Status` | Outcome: `OK` on every single-call success; one of `FILE_NOT_FOUND_ERROR` / `PERMISSION_ERROR` / `UNKNOWN` for batch per-file failures (see [Batch detection](#batch-detection)). |
 
-`MagikaPrediction` is a 3-component record exposing `label()`, `score()`, and
+`MagikaPrediction` is a 3-component record exposing `type()`, `score()`, and
 `overwriteReason()`. The label name (e.g. `"pdf"`, `"png"`, `"java"`) comes
-from `prediction.label().label()` — a `String` matching upstream Python's
-content-type vocabulary verbatim (214 labels in the bundled model).
+from `prediction.type().label()` — a `String` matching upstream Python's
+content-type vocabulary verbatim (214 labels in the bundled model). The
+`type()` accessor returns a `ContentTypeLabel` value that pairs the label
+string with its metadata row (MIME type, description, group); call
+`.label()` on it for the bare string.
 
 ```java
-String label    = r.output().label().label();           // "pdf"
+String label    = r.output().type().label();            // "pdf"
 double score    = r.score();                            // 0.9999
-boolean wasOverwritten = !r.dl().label().label()
-    .equals(r.output().label().label());                // true if overwrite-map fired
+boolean wasOverwritten = !r.dl().type().label()
+    .equals(r.output().type().label());                 // true if overwrite-map fired
 ```
 
 ### Detection methods
@@ -128,7 +131,7 @@ List<MagikaResult> results = m.identifyPaths(paths);
 for (int i = 0; i < paths.size(); i++) {
   MagikaResult r = results.get(i);
   if (r.status() == Status.OK) {
-    System.out.println(paths.get(i) + " -> " + r.output().label().label());
+    System.out.println(paths.get(i) + " -> " + r.output().type().label());
   } else {
     System.err.println(paths.get(i) + " failed: " + r.status());
   }
@@ -253,31 +256,6 @@ project by Google; see the [paper on arXiv (2409.13768)](https://arxiv.org/abs/2
 Google, not endorsed by Google, and not part of the official Magika
 distribution. See [`docs/MODEL_CARD.md`](./docs/MODEL_CARD.md) for
 bundled-model provenance including upstream commit SHA and file SHA-256.
-
-## Breaking changes in v0.2
-
-`MagikaResult` is now a 4-component record — adds `Status status`. Existing 3-arg
-canonical constructors (`new MagikaResult(dl, output, score)`) stop compiling.
-
-Single-call paths (`identifyPath`, `identifyBytes`, `identifyStream`) always set
-`status = Status.OK` on success and continue to throw their existing
-`InvalidInputException` / `InferenceException` / `ModelLoadException` on failure
-(no semantic change).
-
-The new `Status` enum is a 4-value verbatim mirror of upstream Python's `Status` —
-`OK | FILE_NOT_FOUND_ERROR | PERMISSION_ERROR | UNKNOWN`. The non-OK values are
-populated only by the new `identifyPaths(List<Path>)` batch method per the per-file
-failure mapping documented in the `Magika` class Javadoc (lands in v0.2 plan 03-02).
-
-This is a pre-1.0 source-break, accepted because no Maven Central publish has
-happened (no external consumers exist) and only project-internal test fixtures
-construct `MagikaResult` directly. After v0.3 ships to Maven Central, similar
-record changes will require a different mitigation strategy.
-
-Note: `CHANGELOG.md` begins at v0.3.0; pre-v0.3 history is captured in git tag
-annotations (`v0.1`, `v0.2`) and in this section. The `## Breaking changes in
-v0.2` block stays in this README until superseded by a future breaking change
-with its own section.
 
 ## License
 

@@ -61,11 +61,11 @@ class BatchIdentifyIT {
       List<MagikaResult> results = m.identifyPaths(List.of(png, zip, pdf));
       assertThat(results).hasSize(3);
       assertThat(results.get(0).status()).isEqualTo(Status.OK);
-      assertThat(results.get(0).output().label().label()).isEqualTo("png");
+      assertThat(results.get(0).output().type().label()).isEqualTo("png");
       assertThat(results.get(1).status()).isEqualTo(Status.OK);
-      assertThat(results.get(1).output().label().label()).isEqualTo("zip");
+      assertThat(results.get(1).output().type().label()).isEqualTo("zip");
       assertThat(results.get(2).status()).isEqualTo(Status.OK);
-      assertThat(results.get(2).output().label().label()).isEqualTo("pdf");
+      assertThat(results.get(2).output().type().label()).isEqualTo("pdf");
     }
   }
 
@@ -77,11 +77,11 @@ class BatchIdentifyIT {
       List<MagikaResult> results = m.identifyPaths(List.of(png, missing));
       assertThat(results).hasSize(2);
       assertThat(results.get(0).status()).isEqualTo(Status.OK);
-      assertThat(results.get(0).output().label().label()).isEqualTo("png");
+      assertThat(results.get(0).output().type().label()).isEqualTo("png");
       MagikaResult miss = results.get(1);
       assertThat(miss.status()).isEqualTo(Status.FILE_NOT_FOUND_ERROR);
-      assertThat(miss.dl().label().label()).isEqualTo("undefined");
-      assertThat(miss.output().label().label()).isEqualTo("unknown");
+      assertThat(miss.dl().type().label()).isEqualTo("undefined");
+      assertThat(miss.output().type().label()).isEqualTo("unknown");
       assertThat(miss.score()).isEqualTo(0.0);
     }
   }
@@ -104,8 +104,8 @@ class BatchIdentifyIT {
       assertThat(results).hasSize(1);
       MagikaResult r = results.get(0);
       assertThat(r.status()).isEqualTo(Status.PERMISSION_ERROR);
-      assertThat(r.dl().label().label()).isEqualTo("undefined");
-      assertThat(r.output().label().label()).isEqualTo("unknown");
+      assertThat(r.dl().type().label()).isEqualTo("undefined");
+      assertThat(r.output().type().label()).isEqualTo("unknown");
       assertThat(r.score()).isEqualTo(0.0);
     } finally {
       // restore perms so @TempDir cleanup works
@@ -152,9 +152,9 @@ class BatchIdentifyIT {
       List<MagikaResult> serial = m.identifyPaths(List.of(png, zip), 1);
       assertThat(serial).hasSize(2);
       assertThat(serial.get(0).status()).isEqualTo(Status.OK);
-      assertThat(serial.get(0).output().label().label()).isEqualTo("png");
+      assertThat(serial.get(0).output().type().label()).isEqualTo("png");
       assertThat(serial.get(1).status()).isEqualTo(Status.OK);
-      assertThat(serial.get(1).output().label().label()).isEqualTo("zip");
+      assertThat(serial.get(1).output().type().label()).isEqualTo("zip");
     }
   }
 
