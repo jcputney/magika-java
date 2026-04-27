@@ -1,10 +1,14 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
+  # workflow_call lets release.yml + snapshot.yml invoke this verify matrix
+  # as a reusable job (per Phase 5 D-03 + P-02 — verify ONLY, no deploy step).
+  workflow_call:
   pull_request:
     branches: [main]
+  # NOTE: 'push: branches: [main]' trigger MOVED to .github/workflows/snapshot.yml
+  # per Phase 5 P-02 — push-to-main now goes through snapshot.yml which calls
+  # this workflow_call for verify, then runs a separate snapshot-deploy job.
 
 jobs:
   verify:
@@ -26,9 +30,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
