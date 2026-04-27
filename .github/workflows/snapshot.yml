@@ -31,11 +31,19 @@ jobs:
           java-version: '17'
           distribution: temurin
           cache: maven
+          # Phase 5 peer-review fix: setup-java materializes ~/.m2/settings.xml with a <server>
+          # entry whose id matches the pom's <distributionManagement><repository><id>github</id>.
+          # Without this, 'mvn deploy -P github,sign' would fail with 401 Unauthorized when
+          # uploading to maven.pkg.github.com.
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
           gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
       - name: Publish snapshot to GitHub Packages
         run: mvn -B -ntp -Dstyle.color=always deploy -P github,sign -DskipTests=true
         env:
+          GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}

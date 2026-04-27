@@ -10,10 +10,20 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Phase 5 peer-review fix: branch guard. workflow_dispatch can run from any branch by
+  # default; we lock to main so an operator clicking "Run workflow" from a feature branch
+  # does NOT publish a release tag from non-main code.
+  guard:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "branch guard ok — running release on main"
+
   # 3-OS verify gate per D-03 — release MUST NOT proceed if any OS leg is red.
   # Per P-02: the workflow_call reusable job in ci.yml contains ONLY the verify
   # matrix; no deploy step contaminates this gating call.
   verify:
+    needs: guard
     uses: ./.github/workflows/ci.yml
     secrets: inherit
 

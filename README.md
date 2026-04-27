@@ -107,8 +107,11 @@ process many files in parallel using an internal worker pool. Result ordering
 matches input ordering. The default parallelism is
 `Runtime.getRuntime().availableProcessors()`.
 
-Unlike the single-call paths, **batch never throws** — per-file failures are
-captured in the result via `Status`:
+Unlike the single-call paths, **per-file IO and inference failures are captured
+as `Status` values rather than thrown** — so a batch with one unreadable file
+still returns results for the other files. Systemic errors (closed instance,
+null arguments, model corruption) still throw — those are programmer errors,
+not per-file conditions.
 
 | Status | Cause |
 |---|---|
@@ -184,10 +187,24 @@ become `Status` values rather than exceptions.
 
 ### Logging
 
-The library uses [SLF4J](https://www.slf4j.org/) for the three lifecycle log
-events (model load, model close, batch start) at `INFO` level. **You must
-provide an SLF4J implementation on the classpath** to see anything — the
-library ships with the API (`slf4j-api`) only:
+The library uses [SLF4J](https://www.slf4j.org/) for a small, well-defined set
+of events:
+
+- **`INFO` — model load:** emitted when the ONNX session is created on first
+  `identify*()` call. Includes the model name, version, SHA-256, content-type
+  count, and load time in ms.
+- **`INFO` — model close:** emitted from `Magika.close()`.
+- **`WARN` — close-time error:** emitted if `OrtSession.close()` itself throws
+  (treated as already-closed, not propagated).
+- **`ERROR` — model SHA-256 mismatch:** emitted before throwing
+  `ModelLoadException` if the bundled model's SHA-256 doesn't match the
+  expected value (catastrophic — the bundled resource is corrupt).
+
+There is **no per-call log event** in production — single-call and batch
+detection paths are silent.
+
+**You must provide an SLF4J implementation on the classpath** to see anything
+— the library ships with the API (`slf4j-api`) only:
 
 ```xml
 <!-- Maven — pick one -->
@@ -201,7 +218,7 @@ library ships with the API (`slf4j-api`) only:
 
 With no implementation on the classpath, SLF4J emits a single warning at
 startup and silently drops log events — the library still works, but you
-won't see model-load timings or batch-start events.
+won't see model-load timings, close events, or SHA-256 mismatches surfaced.
 
 ## Threading model
 
