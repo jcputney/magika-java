@@ -5,14 +5,24 @@ file-type detection. **Independent community binding — not official, not
 endorsed by Google.** Ships the upstream `standard_v3_3` ONNX model under
 Apache License 2.0.
 
+[![Maven Central](https://img.shields.io/maven-central/v/dev.jcputney/magika-java.svg)](https://central.sonatype.com/artifact/dev.jcputney/magika-java)
+
 ## Quickstart
+
+Maven:
 
 ```xml
 <dependency>
   <groupId>dev.jcputney</groupId>
   <artifactId>magika-java</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.3.0</version>
 </dependency>
+```
+
+Gradle:
+
+```groovy
+implementation 'dev.jcputney:magika-java:0.3.0'
 ```
 
 ```java
@@ -82,6 +92,11 @@ This is a pre-1.0 source-break, accepted because no Maven Central publish has
 happened (no external consumers exist) and only project-internal test fixtures
 construct `MagikaResult` directly. After v0.3 ships to Maven Central, similar
 record changes will require a different mitigation strategy.
+
+Note: `CHANGELOG.md` begins at v0.3.0; pre-v0.3 history is captured in git tag
+annotations (`v0.1`, `v0.2`) and in this section. The `## Breaking changes in
+v0.2` block stays in this README until superseded by a future breaking change
+with its own section.
 
 ## License
 
