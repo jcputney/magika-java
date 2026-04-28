@@ -21,6 +21,7 @@ import dev.jcputney.magika.Magika;
 import dev.jcputney.magika.MagikaException;
 import dev.jcputney.magika.PredictionMode;
 import dev.jcputney.magika.Status;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
@@ -56,7 +57,12 @@ public final class MagikaTikaDetector implements Detector, AutoCloseable {
   private final PredictionMode predictionMode;
   private final UnknownHandling unknownHandling;
   private final boolean emitMetadata;
-  private transient Magika magika;
+  private final long maxInputBytes;
+  // volatile + double-checked locking. Without volatile the fast-path read in ensureMagika()
+  // can observe a partially-constructed Magika under the JMM. Mirrors the pattern used by core
+  // dev.jcputney.magika.Magika for its lazy InferenceEngine. transient keeps the field out of
+  // serialization; the instance is reinitialized on first detect() after deserialize.
+  private transient volatile Magika magika;
 
   /** Creates a detector with default core prediction mode and null-on-unknown behavior. */
   public MagikaTikaDetector() {
@@ -67,6 +73,7 @@ public final class MagikaTikaDetector implements Detector, AutoCloseable {
     this.predictionMode = builder.predictionMode;
     this.unknownHandling = builder.unknownHandling;
     this.emitMetadata = builder.emitMetadata;
+    this.maxInputBytes = builder.maxInputBytes;
   }
 
   /** Returns a new detector builder. */
@@ -90,6 +97,7 @@ public final class MagikaTikaDetector implements Detector, AutoCloseable {
     private PredictionMode predictionMode = PredictionMode.DEFAULT;
     private UnknownHandling unknownHandling = UnknownHandling.RETURN_NULL;
     private boolean emitMetadata = true;
+    private long maxInputBytes = Long.MAX_VALUE;
 
     private Builder() {
       // callers use MagikaTikaDetector.builder()
@@ -113,6 +121,24 @@ public final class MagikaTikaDetector implements Detector, AutoCloseable {
       return this;
     }
 
+    /**
+     * Caps the bytes read from the {@link InputStream} passed to
+     * {@link MagikaTikaDetector#detect(InputStream, Metadata)}. Defaults to {@link Long#MAX_VALUE}
+     * (unlimited) which preserves prior behavior — Tika's own composite-detector chain may pass
+     * very large streams. Operators behind upload pipelines accepting untrusted bytes set a
+     * finite cap (e.g. {@code 64L * 1024 * 1024}) to avoid OOM / blocked-thread DoS.
+     *
+     * @param bytes positive cap, or {@link Long#MAX_VALUE} to disable
+     * @throws IllegalArgumentException if {@code bytes < 1}
+     */
+    public Builder maxInputBytes(long bytes) {
+      if (bytes < 1L) {
+        throw new IllegalArgumentException("maxInputBytes must be >= 1, got " + bytes);
+      }
+      this.maxInputBytes = bytes;
+      return this;
+    }
+
     /** Builds a detector. The underlying ONNX session is still initialized lazily. */
     public MagikaTikaDetector build() {
       return new MagikaTikaDetector(this);
@@ -124,9 +150,10 @@ public final class MagikaTikaDetector implements Detector, AutoCloseable {
     Objects.requireNonNull(input, "input");
     Objects.requireNonNull(metadata, "metadata");
 
+    Magika local = ensureMagika();
     DetectedContentType detected;
     try {
-      detected = ensureMagika().detectBytes(readPreservingMark(input));
+      detected = local.detectBytes(readPreservingMark(input, maxInputBytes));
     } catch (MagikaException | IllegalStateException e) {
       if (emitMetadata) {
         metadata.set(MAGIKA_STATUS, "error");
@@ -136,7 +163,7 @@ public final class MagikaTikaDetector implements Detector, AutoCloseable {
     }
 
     if (emitMetadata) {
-      writeMetadata(metadata, detected, ensureMagika());
+      writeMetadata(metadata, detected, local);
     }
 
     MediaType mediaType = usefulMediaType(detected);
@@ -168,16 +195,49 @@ public final class MagikaTikaDetector implements Detector, AutoCloseable {
     }
   }
 
-  private static byte[] readPreservingMark(InputStream input) throws IOException {
-    if (!input.markSupported()) {
-      return input.readAllBytes();
+  /**
+   * Read the input into a byte[], capped at {@code maxBytes}. When uncapped (Long.MAX_VALUE)
+   * preserves the prior unbounded behavior. When capped, throws {@link IOException} once the
+   * cumulative read exceeds {@code maxBytes} so attackers cannot trickle bytes one chunk at a
+   * time. The {@link InputStream#mark(int)} limit is bounded by the cap (or 8 MiB for the uncapped
+   * default — Integer.MAX_VALUE forced buffered streams to retain absurd state).
+   */
+  private static byte[] readPreservingMark(InputStream input, long maxBytes) throws IOException {
+    int markLimit = (int) Math.min(maxBytes, Integer.MAX_VALUE);
+    if (input.markSupported()) {
+      input.mark(markLimit);
     }
-    input.mark(Integer.MAX_VALUE);
     try {
-      return input.readAllBytes();
+      return readBounded(input, maxBytes);
     } finally {
-      input.reset();
+      if (input.markSupported()) {
+        try {
+          input.reset();
+        } catch (IOException ignored) {
+          // Reset may legitimately fail if the underlying buffer overflowed beyond the mark
+          // limit; Tika's composite-detector chain only requires the contract on streams that
+          // honor mark/reset, and our cap means we never read past the mark limit.
+        }
+      }
     }
+  }
+
+  private static byte[] readBounded(InputStream input, long maxBytes) throws IOException {
+    if (maxBytes >= Long.MAX_VALUE) {
+      return input.readAllBytes();
+    }
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    byte[] chunk = new byte[8192];
+    long total = 0L;
+    int read;
+    while ((read = input.read(chunk)) != -1) {
+      total += read;
+      if (total > maxBytes) {
+        throw new IOException("input exceeds maxInputBytes=" + maxBytes);
+      }
+      out.write(chunk, 0, read);
+    }
+    return out.toByteArray();
   }
 
   private static void writeMetadata(

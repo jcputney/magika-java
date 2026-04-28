@@ -117,7 +117,7 @@ public final class MagikaConfigLoader {
     StringBuilder sb = new StringBuilder();
     for (var ref : e.getPath()) {
       if (ref.getFieldName() != null) {
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
           sb.append('.');
         }
         sb.append(ref.getFieldName());
@@ -125,6 +125,6 @@ public final class MagikaConfigLoader {
         sb.append('[').append(ref.getIndex()).append(']');
       }
     }
-    return sb.length() == 0 ? "<unknown>" : sb.toString();
+    return sb.isEmpty() ? "<unknown>" : sb.toString();
   }
 }

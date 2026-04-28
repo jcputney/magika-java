@@ -20,8 +20,9 @@ import java.util.Objects;
 
 /**
  * Builder for {@link Magika} (API-01). Phase 1 surface is intentionally minimal — only
- * {@link #predictionMode(PredictionMode)} is exposed. Custom model paths, {@code SessionOptions},
- * and {@code OrtEnvironment} overrides are deferred per the project's anti-feature list.
+ * {@link #predictionMode(PredictionMode)} and {@link #maxBufferBytes(long)} are exposed. Custom
+ * model paths, {@code SessionOptions}, and {@code OrtEnvironment} overrides are deferred per the
+ * project's anti-feature list.
  *
  * <p><strong>Not thread-safe.</strong> Construct a single builder, call {@link #build()} once, and
  * share the returned {@link Magika} across threads for {@code identify*} calls.
@@ -29,6 +30,7 @@ import java.util.Objects;
 public final class MagikaBuilder {
 
   private PredictionMode mode = PredictionMode.DEFAULT;
+  private long maxBufferBytes = Long.MAX_VALUE;
 
   MagikaBuilder() {
     // package-private ctor — callers use Magika.builder()
@@ -45,6 +47,29 @@ public final class MagikaBuilder {
 
   PredictionMode predictionMode() {
     return mode;
+  }
+
+  /**
+   * Caps the number of bytes the library will buffer when reading from a caller-supplied
+   * {@link java.io.InputStream}. Defaults to {@link Long#MAX_VALUE} (unlimited) which preserves
+   * upstream-Python parity — every fixture continues to pass byte-for-byte. Configured callers
+   * (Tika operators behind upload pipelines, anyone routing untrusted bytes through
+   * {@link Magika#identifyStream}) trade an OOM / blocked-thread for an
+   * {@link InvalidInputException} when the cap is exceeded.
+   *
+   * @param bytes positive byte cap, or {@link Long#MAX_VALUE} to disable
+   * @throws IllegalArgumentException if {@code bytes < 1}
+   */
+  public MagikaBuilder maxBufferBytes(long bytes) {
+    if (bytes < 1L) {
+      throw new IllegalArgumentException("maxBufferBytes must be >= 1, got " + bytes);
+    }
+    this.maxBufferBytes = bytes;
+    return this;
+  }
+
+  long maxBufferBytes() {
+    return maxBufferBytes;
   }
 
   /**

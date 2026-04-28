@@ -34,10 +34,10 @@ import org.junit.jupiter.api.io.TempDir;
  * <p>Tagged {@code parity} so Failsafe runs it (Surefire excludes {@code parity,slow}). Name ends
  * in {@code IT} so Failsafe's default include pattern ({@code *IT.java}) picks it up.
  *
- * <p><strong>No concurrent-close test</strong> — calling {@code close()} while an
- * {@code identify*} call is mid-flight is undefined behavior per ORT 1.25.0; exercising the race
- * would flake or crash the JVM in CI with no diagnostic value. The failure mode is documented in
- * {@code Magika#close()} Javadoc. See threat-register T-05-06.
+ * <p>Concurrent-close coverage lives in {@link ConcurrentCloseIT}: an in-flight {@link
+ * java.util.concurrent.atomic.AtomicInteger} gate wraps every {@code identify*} call so {@code
+ * close()} drains in-flight work before disposing the native ORT session, and late callers
+ * observe {@link IllegalStateException} cleanly instead of a JVM crash.
  */
 @Tag("parity")
 class MagikaApiIT {

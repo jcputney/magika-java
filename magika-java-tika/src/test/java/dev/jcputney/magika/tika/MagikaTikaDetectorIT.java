@@ -17,8 +17,10 @@
 package dev.jcputney.magika.tika;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.apache.tika.metadata.Metadata;
@@ -96,5 +98,38 @@ class MagikaTikaDetectorIT {
       assertThat(mediaType).isEqualTo(MediaType.image("png"));
       assertThat(metadata.get(MagikaTikaDetector.MAGIKA_LABEL)).isNull();
     }
+  }
+
+  @Test
+  void exceeding_maxInputBytes_throws_IOException_wrapping_size_message() throws Exception {
+    long cap = 1024L;
+    byte[] payload = new byte[(int) cap + 16];
+    Metadata metadata = new Metadata();
+
+    try (MagikaTikaDetector detector = MagikaTikaDetector.builder()
+      .maxInputBytes(cap)
+      .build()) {
+      assertThatThrownBy(() -> detector.detect(new ByteArrayInputStream(payload), metadata))
+        .isInstanceOf(IOException.class)
+        .hasMessageContaining("input exceeds maxInputBytes=" + cap);
+    }
+  }
+
+  @Test
+  void default_maxInputBytes_does_not_truncate() throws Exception {
+    byte[] bytes = Files.readAllBytes(CORE_FIXTURES.resolve("images/sample.png"));
+    Metadata metadata = new Metadata();
+
+    try (MagikaTikaDetector detector = MagikaTikaDetector.builder().build()) {
+      MediaType mediaType = detector.detect(new ByteArrayInputStream(bytes), metadata);
+      assertThat(mediaType).isEqualTo(MediaType.image("png"));
+    }
+  }
+
+  @Test
+  void builder_rejects_zero_or_negative_maxInputBytes() {
+    assertThatThrownBy(() -> MagikaTikaDetector.builder().maxInputBytes(0L))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("maxInputBytes must be >= 1");
   }
 }

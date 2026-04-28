@@ -165,11 +165,12 @@ public final class OnnxInferenceEngine implements InferenceEngine {
         "tokens length " + tokens.length + " != expected " + expectedTokens);
     }
 
-    IntBuffer buf = IntBuffer.allocate(tokens.length); // INF-07 — 32-bit per token so 256 fits
-    buf.put(tokens).flip();
-
+    // INF-07 — 32-bit per token so 256 fits. IntBuffer.wrap is zero-copy (the wrapper is a thin
+    // view over the int[]); allocate+put+flip would copy the array onto a fresh heap buffer for
+    // no benefit. ORT 1.25.0 has no createTensor(env, int[], long[]) overload — IntBuffer is the
+    // narrowest supported entrypoint.
     try (OnnxTensor tensor =
-      OnnxTensor.createTensor(env, buf, new long[] {1L, tokens.length})) {
+      OnnxTensor.createTensor(env, IntBuffer.wrap(tokens), new long[] {1L, tokens.length})) {
       try (OrtSession.Result result = session.run(Map.of(inputName, tensor))) {
         OnnxValue out = result.get(0);
         Object raw = out.getValue();

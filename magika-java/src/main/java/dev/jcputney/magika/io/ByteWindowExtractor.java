@@ -117,14 +117,36 @@ public final class ByteWindowExtractor {
     return buildFromBytes(buffer.toByteArray(), cfg, tokens);
   }
 
+  /**
+   * Read up to {@code buf.remaining()} bytes from {@code ch} starting at absolute file
+   * {@code position}. Stops on EOF (negative read). Aborts with {@link IOException} if the channel
+   * makes no progress (returns 0) for {@link #READ_NO_PROGRESS_LIMIT} consecutive iterations —
+   * {@code FileChannel.read(ByteBuffer, long)} is permitted by the NIO Javadoc to return 0 (e.g.
+   * on certain network-mounted / sparse / async-IO channels), and an unchecked retry loop would
+   * spin forever burning a CPU core.
+   */
   private static void readFully(FileChannel ch, ByteBuffer buf, long position) throws IOException {
+    int zeroProgressCount = 0;
     while (buf.hasRemaining()) {
       int read = ch.read(buf, position + buf.position());
       if (read < 0) {
         break;
       }
+      if (read == 0) {
+        if (++zeroProgressCount >= READ_NO_PROGRESS_LIMIT) {
+          throw new IOException(
+            "no progress reading channel after "
+              + READ_NO_PROGRESS_LIMIT
+              + " zero-byte reads at position "
+              + (position + buf.position()));
+        }
+      } else {
+        zeroProgressCount = 0;
+      }
     }
   }
+
+  private static final int READ_NO_PROGRESS_LIMIT = 8;
 
   private static void fillBegTokens(
     byte[] raw, int offset, int length, ThresholdConfig cfg, int[] tokens) {

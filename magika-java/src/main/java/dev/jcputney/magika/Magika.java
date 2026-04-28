@@ -31,6 +31,7 @@ import dev.jcputney.magika.postprocess.FallbackLogic;
 import dev.jcputney.magika.postprocess.LabelResolver;
 import dev.jcputney.magika.postprocess.ResolvedLabels;
 import dev.jcputney.magika.postprocess.Utf8Validator;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
@@ -41,6 +42,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.slf4j.Logger;
@@ -88,9 +90,17 @@ public final class Magika implements AutoCloseable {
   private final ContentTypeRegistry registry;
   private final PredictionMode mode;
   private final String modelSha256; // A-06: populated eagerly in constructor (~10-15 ms)
-  private final byte[] modelBytes; // A-06: held until ensureEngine() consumes them on first identify*
+  // Non-final so ensureEngine() can null it after the OrtSession copies bytes to the native arena.
+  // Guarded by engineLock for the publish/release; readers see the field only inside the synchronized
+  // block in ensureEngine() so no volatile is required.
+  private byte[] modelBytes; // A-06: held until ensureEngine() consumes them on first identify*
   private final int expectedTokens; // pre-computed from config to avoid recomputing in ensureEngine
   private final List<ContentTypeLabel> outputContentTypes;
+  private final long maxBufferBytes; // cap for caller-supplied InputStream buffering; default Long.MAX_VALUE
+  // Two-phase shutdown: identify* increments inFlight then re-checks `closed`; close() flips
+  // `closed` then waits for inFlight to drain before disposing the native ORT session. Replaces
+  // the previous "may JVM-crash" disclaimer with deterministic IllegalStateException semantics.
+  private final AtomicInteger inFlight = new AtomicInteger(0);
   private volatile boolean closed = false;
 
   Magika(MagikaBuilder builder) {
@@ -98,6 +108,7 @@ public final class Magika implements AutoCloseable {
     this.config = MagikaConfigLoader.loadBundled();
     this.registry = MagikaConfigLoader.loadBundledRegistry();
     this.mode = builder.predictionMode();
+    this.maxBufferBytes = builder.maxBufferBytes();
 
     // A-06: eager bytes + SHA-256. Defer ONLY the OrtSession.create() inside OnnxInferenceEngine.
     // OnnxModelLoader.load() reads ~3 MiB and computes SHA-256 (~10-15 ms) — within SC-4 budget.
@@ -137,9 +148,14 @@ public final class Magika implements AutoCloseable {
    */
   public MagikaResult identifyBytes(byte[] bytes) {
     Objects.requireNonNull(bytes, "bytes");
-    checkOpen();
-    ensureEngine();
-    return identifyInternal(new BytesInput(bytes), bytes, bytes.length);
+    inFlight.incrementAndGet();
+    try {
+      checkOpen();
+      ensureEngine();
+      return identifyInternal(new BytesInput(bytes), bytes, bytes.length);
+    } finally {
+      inFlight.decrementAndGet();
+    }
   }
 
   /**
@@ -164,34 +180,39 @@ public final class Magika implements AutoCloseable {
    */
   public MagikaResult identifyPath(Path path) {
     Objects.requireNonNull(path, "path");
-    checkOpen();
-    ensureEngine();
+    inFlight.incrementAndGet();
     try {
-      if (!Files.exists(path)) {
-        throw new InvalidInputException(
-          "file does not exist: " + path, new NoSuchFileException(path.toString()));
+      checkOpen();
+      ensureEngine();
+      try {
+        if (!Files.exists(path)) {
+          throw new InvalidInputException(
+            "file does not exist: " + path, new NoSuchFileException(path.toString()));
+        }
+        if (Files.isDirectory(path)) {
+          throw new InvalidInputException(
+            "path is a directory: " + path, new IOException("directory: " + path));
+        }
+        long size = Files.size(path);
+        // WR-03: previously narrowed long size to int via Math.min(size, Integer.MAX_VALUE) when
+        // content was null, which silently truncates files >2 GiB. The narrowed value was only
+        // ever consumed by the small-file guard inside identifyInternal — and that guard is
+        // skipped (smallBuffer == null) for the path-not-pre-buffered case anyway. Restructure
+        // so the small-file-buffered branch is its own statement: we read all bytes when (and
+        // only when) size < minFileSizeForDl, which is a long < int comparison and never narrows.
+        // For the not-pre-buffered branch, knownLength is unused so we pass -1 as a sentinel.
+        if (size < config.minFileSizeForDl()) {
+          byte[] content = Files.readAllBytes(path);
+          return identifyInternal(new BytesInput(content), content, content.length);
+        }
+        return identifyInternal(new PathInput(path), null, -1);
+      } catch (InvalidInputException iie) {
+        throw iie;
+      } catch (IOException e) {
+        throw new InvalidInputException("failed to read path: " + path, e);
       }
-      if (Files.isDirectory(path)) {
-        throw new InvalidInputException(
-          "path is a directory: " + path, new IOException("directory: " + path));
-      }
-      long size = Files.size(path);
-      // WR-03: previously narrowed long size to int via Math.min(size, Integer.MAX_VALUE) when
-      // content was null, which silently truncates files >2 GiB. The narrowed value was only
-      // ever consumed by the small-file guard inside identifyInternal — and that guard is
-      // skipped (smallBuffer == null) for the path-not-pre-buffered case anyway. Restructure
-      // so the small-file-buffered branch is its own statement: we read all bytes when (and
-      // only when) size < minFileSizeForDl, which is a long < int comparison and never narrows.
-      // For the not-pre-buffered branch, knownLength is unused so we pass -1 as a sentinel.
-      if (size < config.minFileSizeForDl()) {
-        byte[] content = Files.readAllBytes(path);
-        return identifyInternal(new BytesInput(content), content, content.length);
-      }
-      return identifyInternal(new PathInput(path), null, -1);
-    } catch (InvalidInputException iie) {
-      throw iie;
-    } catch (IOException e) {
-      throw new InvalidInputException("failed to read path: " + path, e);
+    } finally {
+      inFlight.decrementAndGet();
     }
   }
 
@@ -221,22 +242,59 @@ public final class Magika implements AutoCloseable {
    */
   public MagikaResult identifyStream(InputStream stream) {
     Objects.requireNonNull(stream, "stream");
-    checkOpen();
-    ensureEngine();
-    // CR-01 fix: materialize the stream into a byte[] BEFORE entering identifyInternal so the
-    // small-file short-circuit (Pitfall 4 / POST-03) fires for empty / N<min_file_size_for_dl
-    // streams. Without this, an empty or 1..7-byte stream would skip the smallBuffer guard
-    // (smallBuffer was null for the stream path) and run the model on all-padding tokens —
-    // disagreeing with upstream Python which returns the EMPTY / TXT / UNKNOWN sentinel without
-    // invoking the model. D-09 still holds: ByteWindowExtractor.buildFromStream also buffers to
-    // EOF, but the small-file branch is post-strip-aware via knownLength.
-    byte[] buffered;
+    inFlight.incrementAndGet();
     try {
-      buffered = stream.readAllBytes();
+      checkOpen();
+      ensureEngine();
+      // CR-01 fix: materialize the stream into a byte[] BEFORE entering identifyInternal so the
+      // small-file short-circuit (Pitfall 4 / POST-03) fires for empty / N<min_file_size_for_dl
+      // streams. Without this, an empty or 1..7-byte stream would skip the smallBuffer guard
+      // (smallBuffer was null for the stream path) and run the model on all-padding tokens —
+      // disagreeing with upstream Python which returns the EMPTY / TXT / UNKNOWN sentinel without
+      // invoking the model. D-09 still holds: ByteWindowExtractor.buildFromStream also buffers to
+      // EOF, but the small-file branch is post-strip-aware via knownLength.
+      // maxBufferBytes cap: bounded read throws InvalidInputException when exceeded; default
+      // Long.MAX_VALUE preserves upstream-Python parity (no cap) but Tika operators / anyone
+      // routing untrusted streams sets a finite value to avoid OOM / blocked-thread DoS.
+      byte[] buffered = readBounded(stream);
+      return identifyInternal(new BytesInput(buffered), buffered, buffered.length);
+    } finally {
+      inFlight.decrementAndGet();
+    }
+  }
+
+  /**
+   * Read the stream into a byte[], capped at {@link #maxBufferBytes}. When the cap is
+   * {@link Long#MAX_VALUE} (default) this is a thin wrapper over {@link InputStream#readAllBytes()}
+   * — parity-preserving. When the cap is finite, reads in 8 KiB chunks and throws
+   * {@link InvalidInputException} on the first chunk that pushes the cumulative total past the
+   * cap (so attackers cannot trickle bytes one-at-a-time to evade detection).
+   */
+  private byte[] readBounded(InputStream stream) {
+    if (maxBufferBytes == Long.MAX_VALUE) {
+      try {
+        return stream.readAllBytes();
+      } catch (IOException e) {
+        throw new InvalidInputException("failed to read stream", e);
+      }
+    }
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    byte[] chunk = new byte[8192];
+    long total = 0L;
+    try {
+      int read;
+      while ((read = stream.read(chunk)) != -1) {
+        total += read;
+        if (total > maxBufferBytes) {
+          throw new InvalidInputException(
+            "input exceeds maxBufferBytes=" + maxBufferBytes);
+        }
+        out.write(chunk, 0, read);
+      }
     } catch (IOException e) {
       throw new InvalidInputException("failed to read stream", e);
     }
-    return identifyInternal(new BytesInput(buffered), buffered, buffered.length);
+    return out.toByteArray();
   }
 
   /**
@@ -335,15 +393,14 @@ public final class Magika implements AutoCloseable {
    * no-ops. After closure, any {@code identify*} call throws {@link IllegalStateException} with
    * message {@code "Magika has been closed"}.
    *
-   * <p><b>Not thread-safe</b> with concurrent {@code identify*} calls.
+   * <p><strong>Concurrency:</strong> Safe to call concurrently with in-flight {@code identify*}
+   * calls. The implementation flips the {@code closed} flag (volatile), then waits for any
+   * in-flight {@code identify*} calls to drain via an {@link AtomicInteger} gate before disposing
+   * the native ORT session. Concurrent {@code identify*} callers race-lose the gate observe
+   * {@code closed=true} and throw {@link IllegalStateException} ("Magika has been closed") rather
+   * than the previous "may JVM-crash with native access violation" semantics.
    *
-   * <p><strong>Concurrency:</strong> Calling {@code close()} while another thread is mid-flight
-   * inside an {@code identify*} call is undefined behavior. The JVM may crash with a
-   * "native access violation" because the in-flight {@code OrtSession.run()} holds native
-   * resources that {@code close()} disposes; ORT 1.25.0 does not synchronize these. Callers must
-   * ensure all {@code identify*} calls have returned before invoking {@code close()}. Typical
-   * patterns: (1) use try-with-resources in a single-threaded context, or (2) coordinate
-   * shutdown via an external latch that drains in-flight work before {@code close()} runs.
+   * <p>Idempotent — subsequent {@code close()} calls are no-ops.
    */
   @Override
   public void close() {
@@ -351,6 +408,14 @@ public final class Magika implements AutoCloseable {
       return;
     }
     closed = true;
+    // Wait for any in-flight identify* calls to drain before disposing the native session. This
+    // replaces the previous "may JVM-crash" disclaimer with deterministic semantics: late callers
+    // see closed=true and throw IllegalStateException; in-flight callers complete normally and
+    // decrement the gate. Drain is yield-only — the expected case is shutdown after work has
+    // already finished, so contention is rare.
+    while (inFlight.get() > 0) {
+      Thread.yield();
+    }
     // engine may be null if no identify* call was ever made (REF-04 / SC-5).
     InferenceEngine local = engine;
     if (local != null) {
@@ -399,6 +464,9 @@ public final class Magika implements AutoCloseable {
           outputContentTypes.size(),
           loadMs);
         engine = fresh; // volatile write — publishes engine to fast-path readers
+        // ORT 1.25.0 copies the model bytes into a native arena during createSession, so the
+        // Java byte[] is dead weight after the engine is published. Release ~3 MiB per instance.
+        modelBytes = null;
       }
       return engine;
     }
@@ -477,23 +545,28 @@ public final class Magika implements AutoCloseable {
         throw new NullPointerException("paths[" + i + "]");
       }
     }
-    checkOpen();
-    ensureEngine(); // prime lazy load before fork — first identify* race funneled through one lock
-
-    int n = paths.size();
-    MagikaResult[] out = new MagikaResult[n];
-    ForkJoinPool pool = new ForkJoinPool(parallelism);
+    inFlight.incrementAndGet();
     try {
-      pool
-        .submit(
-          () -> IntStream.range(0, n)
-            .parallel()
-            .forEach(i -> out[i] = identifyOneForBatch(paths.get(i))))
-        .join();
+      checkOpen();
+      ensureEngine(); // prime lazy load before fork — first identify* race funneled through one lock
+
+      int n = paths.size();
+      MagikaResult[] out = new MagikaResult[n];
+      ForkJoinPool pool = new ForkJoinPool(parallelism);
+      try {
+        pool
+          .submit(
+            () -> IntStream.range(0, n)
+              .parallel()
+              .forEach(i -> out[i] = identifyOneForBatch(paths.get(i))))
+          .join();
+      } finally {
+        pool.shutdown();
+      }
+      return Arrays.asList(out);
     } finally {
-      pool.shutdown();
+      inFlight.decrementAndGet();
     }
-    return Arrays.asList(out);
   }
 
   /**
