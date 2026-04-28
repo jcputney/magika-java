@@ -51,6 +51,29 @@
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!--
+          JMH (test-scope, always on classpath).
+
+          Benchmarks live under src/test/java/dev/jcputney/magika/perf/. JMH's annotation
+          processor needs jmh-generator-annprocess available at test-compile time so the
+          BenchmarkList resource and synthetic *_jmhType / *_jmhTest classes are generated.
+          Surefire's default include pattern (*Test.java etc.) does NOT match *Benchmark.java
+          so the generated test wrappers are not run by mvn test.
+
+          The perf Maven profile adds the jmh-maven-plugin so benchmarks can be invoked via
+          mvn -P perf jmh:benchmark. See docs/perf.md.
+        -->
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -115,4 +138,30 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <!--
+          Performance benchmarks (JMH).
+
+          Activate with: mvn -P perf jmh:benchmark
+          Filter:        mvn -P perf jmh:benchmark -Djmh.benchmarks=IdentifyBytes.*
+
+          Benchmarks live under src/test/java/dev/jcputney/magika/perf/. Default
+          mvn verify does NOT run them — surefire only matches *Test/*Tests classes
+          and JMH benchmarks are *Benchmark, so they're skipped naturally.
+
+          See docs/perf.md for methodology and caveats.
+        -->
+        <profile>
+            <id>perf</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>pw.krejci</groupId>
+                        <artifactId>jmh-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

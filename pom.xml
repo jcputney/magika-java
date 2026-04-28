@@ -56,6 +56,7 @@
         <version.junit>6.0.3</version.junit>
         <version.assertj>3.27.7</version.assertj>
         <version.archunit>1.4.2</version.archunit>
+        <version.jmh>1.37</version.jmh>
 
         <version.plugin.compiler>3.15.0</version.plugin.compiler>
         <version.plugin.jar>3.5.0</version.plugin.jar>
@@ -66,6 +67,7 @@
         <version.plugin.spotless>3.4.0</version.plugin.spotless>
         <version.plugin.license>5.0.0</version.plugin.license>
         <version.plugin.invoker>3.10.0</version.plugin.invoker>
+        <version.plugin.jmh>0.2.2</version.plugin.jmh>
 
         <version.plugin.gpg>3.2.8</version.plugin.gpg>
         <version.plugin.release>3.3.1</version.plugin.release>
@@ -119,6 +121,16 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
                 <version>${version.slf4j}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-core</artifactId>
+                <version>${version.jmh}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjdk.jmh</groupId>
+                <artifactId>jmh-generator-annprocess</artifactId>
+                <version>${version.jmh}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -186,6 +198,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
                     <version>${version.plugin.invoker}</version>
+                </plugin>
+                <plugin>
+                    <groupId>pw.krejci</groupId>
+                    <artifactId>jmh-maven-plugin</artifactId>
+                    <version>${version.plugin.jmh}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
