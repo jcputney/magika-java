@@ -36,14 +36,21 @@ jobs:
             maven-depcheck-
 
       # NVD data cache: dependency-check stores the NVD feed under
-      # ~/.m2/repository/org/owasp/dependency-check-data/. Cache it across
-      # runs so we only pay full-download cost on the weekly cron.
+      # ~/.m2/repository/org/owasp/dependency-check-data/. Key on ISO
+      # year-week (`%G-%V`) so PR/push runs in the same week share one
+      # entry; the weekly cron naturally rolls to a new key. Without this,
+      # using `github.run_id` would create a fresh cache every run and
+      # cause cache churn / storage bloat.
+      - name: Compute weekly cache bucket
+        id: cachekey
+        run: echo "week=$(date -u +%G-%V)" >> "$GITHUB_OUTPUT"
+
       - uses: actions/cache@v5
         with:
           path: ~/.m2/repository/org/owasp/dependency-check-data
-          key: depcheck-nvd-${{ github.run_id }}
+          key: depcheck-nvd-${{ runner.os }}-${{ steps.cachekey.outputs.week }}
           restore-keys: |
-            depcheck-nvd-
+            depcheck-nvd-${{ runner.os }}-
 
       - name: Run dependency-check
         run: |
