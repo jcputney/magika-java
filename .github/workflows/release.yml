@@ -134,14 +134,19 @@ jobs:
           RELEASE_VERSION="${RELEASE_TAG#v}"
           echo "RELEASE_VERSION=${RELEASE_VERSION}" >> "$GITHUB_ENV"
           mkdir -p release-assets
-          # SBOMs — one per module, both formats
+          missing=0
+          # SBOMs — one per module, both formats. ALL are required: a missing
+          # SBOM means the central profile didn't run cyclonedx (broken release
+          # config) and we'd rather fail here with a precise path than later
+          # when `gh release create` chokes on an unexpanded glob.
           for module in magika-java magika-java-tika; do
             for fmt in json xml; do
               src="target/checkout/${module}/target/bom.${fmt}"
               if [ -f "$src" ]; then
                 cp "$src" "release-assets/${module}-${RELEASE_VERSION}-cyclonedx.${fmt}"
               else
-                echo "::warning::SBOM not found at $src"
+                echo "::error::Expected SBOM not found at $src — did the central profile run cyclonedx?"
+                missing=1
               fi
             done
           done
@@ -152,9 +157,14 @@ jobs:
             if [ -f "$jar" ]; then
               cp "$jar" "release-assets/"
             else
-              echo "::warning::JAR not found at $jar"
+              echo "::error::Expected JAR not found at $jar"
+              missing=1
             fi
           done
+          if [ "$missing" -ne 0 ]; then
+            echo "::error::Required release artifacts are missing (see errors above); aborting before GitHub Release"
+            exit 1
+          fi
           ls -la release-assets/
 
       - name: Attest build provenance for JARs
