@@ -73,6 +73,7 @@
         <version.plugin.release>3.3.1</version.plugin.release>
         <version.plugin.central-publishing>0.10.0</version.plugin.central-publishing>
         <version.plugin.cyclonedx>2.9.1</version.plugin.cyclonedx>
+        <version.plugin.dependency-check>12.1.0</version.plugin.dependency-check>
     </properties>
 
     <dependencyManagement>
@@ -340,6 +341,51 @@
                             <outputFormat>all</outputFormat>
                             <skipNotDeployed>false</skipNotDeployed>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>security</id>
+            <!-- OWASP Dependency-Check (SCA). Opt-in profile because the NVD feed
+                 download is heavy (~hundreds of MB) and slow to refresh. CI uses
+                 .github/workflows/dependency-check.yml; locally run:
+                   mvn -P security verify -DnvdApiKey=...
+                 Without an NVD API key the run still works but rate-limits hard. -->
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <version>${version.plugin.dependency-check}</version>
+                        <configuration>
+                            <!-- Fail build on High/Critical (CVSS >= 7.0). Mediums get
+                                 reported but don't block — keeps the gate signal/noise
+                                 reasonable for a small library. -->
+                            <failBuildOnCVSS>7</failBuildOnCVSS>
+                            <formats>
+                                <format>HTML</format>
+                                <format>SARIF</format>
+                                <format>JSON</format>
+                            </formats>
+                            <!-- Skip dev/test scopes — CVEs in junit/assertj/archunit
+                                 don't ship to consumers. -->
+                            <skipTestScope>true</skipTestScope>
+                            <skipProvidedScope>true</skipProvidedScope>
+                            <skipSystemScope>true</skipSystemScope>
+                            <!-- Aggregate report at parent level so the workflow has
+                                 one SARIF to upload. -->
+                            <outputDirectory>${project.build.directory}/dependency-check</outputDirectory>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>dependency-check</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>aggregate</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

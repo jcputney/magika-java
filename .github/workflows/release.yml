@@ -76,6 +76,11 @@ jobs:
     needs: verify
     permissions:
       contents: write
+      # id-token + attestations needed by actions/attest-build-provenance and
+      # actions/attest-sbom — these mint sigstore-backed attestations against
+      # the GitHub OIDC token and write them to the repo's attestation log.
+      id-token: write
+      attestations: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -115,6 +120,59 @@ jobs:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+      # release:perform checks the tagged code into target/checkout/ and runs
+      # the central+sign profiles (see <releaseProfiles> in pom.xml). The
+      # cyclonedx plugin (bound to the central profile, package phase) drops
+      # bom.{json,xml} into each module's target/. Collect them under a
+      # versioned name so consumers downloading from the GH Release can tell
+      # which module/version the SBOM corresponds to.
+      - name: Collect release artifacts (JARs + SBOMs)
+        id: collect
+        run: |
+          set -euo pipefail
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+          echo "RELEASE_VERSION=${RELEASE_VERSION}" >> "$GITHUB_ENV"
+          mkdir -p release-assets
+          # SBOMs — one per module, both formats
+          for module in magika-java magika-java-tika; do
+            for fmt in json xml; do
+              src="target/checkout/${module}/target/bom.${fmt}"
+              if [ -f "$src" ]; then
+                cp "$src" "release-assets/${module}-${RELEASE_VERSION}-cyclonedx.${fmt}"
+              else
+                echo "::warning::SBOM not found at $src"
+              fi
+            done
+          done
+          # Main JARs (for build-provenance attestation; sources/javadoc skipped
+          # — attesting the primary artifact is what consumers verify against).
+          for module in magika-java magika-java-tika; do
+            jar="target/checkout/${module}/target/${module}-${RELEASE_VERSION}.jar"
+            if [ -f "$jar" ]; then
+              cp "$jar" "release-assets/"
+            else
+              echo "::warning::JAR not found at $jar"
+            fi
+          done
+          ls -la release-assets/
+
+      - name: Attest build provenance for JARs
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: 'release-assets/*.jar'
+
+      - name: Attest magika-java SBOM
+        uses: actions/attest-sbom@v3
+        with:
+          subject-path: 'release-assets/magika-java-${{ env.RELEASE_VERSION }}.jar'
+          sbom-path: 'release-assets/magika-java-${{ env.RELEASE_VERSION }}-cyclonedx.json'
+
+      - name: Attest magika-java-tika SBOM
+        uses: actions/attest-sbom@v3
+        with:
+          subject-path: 'release-assets/magika-java-tika-${{ env.RELEASE_VERSION }}.jar'
+          sbom-path: 'release-assets/magika-java-tika-${{ env.RELEASE_VERSION }}-cyclonedx.json'
 
       - name: Extract CHANGELOG section + create GitHub Release
         run: |
@@ -168,10 +226,15 @@ jobs:
 
           # Use --notes-file (NOT --notes) — CHANGELOG content can contain markdown
           # that breaks shell-quoting if passed as a string.
+          # SBOMs are attached as release assets so consumers who don't pull from
+          # Maven Central (or who want the aggregate parent SBOM at a glance) can
+          # download them directly. JARs live on Central — no need to duplicate.
           gh release create "${RELEASE_TAG}" \
             --title "${RELEASE_TAG}" \
             --notes-file release-notes.md \
-            --latest
+            --latest \
+            release-assets/*-cyclonedx.json \
+            release-assets/*-cyclonedx.xml
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

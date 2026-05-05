@@ -1,0 +1,74 @@
+name: Dependency-Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly Tuesday 09:30 ET (13:30 UTC). Offset from CodeQL's Monday cron so
+    # a slow NVD API morning doesn't pile both onto the same hour.
+    - cron: '30 13 * * 2'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository
+          key: maven-depcheck-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-depcheck-
+
+      # NVD data cache: dependency-check stores the NVD feed under
+      # ~/.m2/repository/org/owasp/dependency-check-data/. Cache it across
+      # runs so we only pay full-download cost on the weekly cron.
+      - uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: depcheck-nvd-${{ github.run_id }}
+          restore-keys: |
+            depcheck-nvd-
+
+      - name: Run dependency-check
+        run: |
+          mvn -B -ntp -P security \
+            -DskipTests=true \
+            -Dspotless.check.skip=true \
+            -Dlicense.skip=true \
+            ${NVD_API_KEY:+-DnvdApiKey=$NVD_API_KEY} \
+            verify
+        env:
+          # Optional: set NVD_API_KEY in repo secrets to lift NVD rate limits.
+          # Without it, the job still works but is slower on cold caches.
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+
+      - name: Upload SARIF to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: target/dependency-check/dependency-check-report.sarif
+          category: dependency-check
+
+      - name: Upload HTML/JSON report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: dependency-check-report
+          path: target/dependency-check/
+          retention-days: 14

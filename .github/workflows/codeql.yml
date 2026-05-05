@@ -1,0 +1,55 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Weekly Monday 09:30 ET (13:30 UTC, no DST drift worth caring about for a
+    # weekly cadence). Catches CVEs that land in CodeQL's queries between
+    # commits when the repo is otherwise quiet.
+    - cron: '30 13 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  analyze:
+    name: Analyze (java)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/cache@v5
+        with:
+          path: ~/.m2/repository
+          key: maven-codeql-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-codeql-
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: java-kotlin
+          # security-and-quality includes the security-extended pack plus
+          # maintainability/reliability queries — fine for a small library.
+          queries: security-and-quality
+
+      # Manual build: skip tests + spotless/license to keep CodeQL extraction
+      # focused on compilable bytecode. The full verify matrix in ci.yml owns
+      # those checks.
+      - name: Compile
+        run: mvn -B -ntp -DskipTests -Dspotless.check.skip=true -Dlicense.skip=true package
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:java-kotlin
