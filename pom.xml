@@ -358,6 +358,11 @@
                         <groupId>org.owasp</groupId>
                         <artifactId>dependency-check-maven</artifactId>
                         <version>${version.plugin.dependency-check}</version>
+                        <!-- aggregate is a reactor-root goal; inheritance would
+                             cause each child module to invoke it during its own
+                             verify phase, which is redundant at best and can
+                             fail on the non-aggregator execution context. -->
+                        <inherited>false</inherited>
                         <configuration>
                             <!-- Fail build on High/Critical (CVSS >= 7.0). Mediums get
                                  reported but don't block — keeps the gate signal/noise
@@ -376,6 +381,10 @@
                             <!-- Aggregate report at parent level so the workflow has
                                  one SARIF to upload. -->
                             <outputDirectory>${project.build.directory}/dependency-check</outputDirectory>
+                            <!-- Move the NVD feed cache out of ~/.m2/repository so
+                                 the workflow can cache it on a separate (weekly) key
+                                 without overlapping the maven dependency cache. -->
+                            <dataDirectory>${user.home}/.cache/dependency-check-data</dataDirectory>
                         </configuration>
                         <executions>
                             <execution>
