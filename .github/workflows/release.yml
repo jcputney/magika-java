@@ -239,12 +239,16 @@ jobs:
           # SBOMs are attached as release assets so consumers who don't pull from
           # Maven Central (or who want the aggregate parent SBOM at a glance) can
           # download them directly. JARs live on Central — no need to duplicate.
+          # Use explicit paths (not globs) so any missing file is a clear error
+          # rather than a silent glob mis-expansion passed verbatim to gh.
           gh release create "${RELEASE_TAG}" \
             --title "${RELEASE_TAG}" \
             --notes-file release-notes.md \
             --latest \
-            release-assets/*-cyclonedx.json \
-            release-assets/*-cyclonedx.xml
+            "release-assets/magika-java-${RELEASE_VERSION}-cyclonedx.json" \
+            "release-assets/magika-java-${RELEASE_VERSION}-cyclonedx.xml" \
+            "release-assets/magika-java-tika-${RELEASE_VERSION}-cyclonedx.json" \
+            "release-assets/magika-java-tika-${RELEASE_VERSION}-cyclonedx.xml"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
