@@ -83,13 +83,17 @@ jobs:
       attestations: write
     runs-on: ubuntu-latest
     steps:
+      # Checkout with RELEASE_TOKEN (fine-grained PAT owned by repo admin,
+      # Contents+Workflows R/W on this repo only). actions/checkout configures
+      # an http.extraheader so subsequent git pushes authenticate as the PAT
+      # owner. The owner has the Admin role, which is a bypass actor on the
+      # "main-protection" ruleset — so release:prepare can push the
+      # `prepare release` and `prepare for next development iteration` commits
+      # without satisfying the 8 required status checks first.
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
-      - uses: webfactory/ssh-agent@v0.10.0
-        with:
-          ssh-private-key: ${{ secrets.MAVEN_RELEASE_SSH_KEY }}
+          token: ${{ secrets.RELEASE_TOKEN }}
 
       - uses: actions/setup-java@v5
         with:
@@ -109,17 +113,24 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          mvn -B -ntp -Dstyle.color=always release:prepare -P sign
+          # pom.xml's developerConnection still points at the SSH URL for
+          # local-dev convenience. CI doesn't have an SSH key any more — it
+          # auths via the http.extraheader actions/checkout set up — so
+          # override developerConnection to HTTPS so maven-release-plugin
+          # pushes over HTTPS and picks up the PAT credential.
+          mvn -B -ntp -Dstyle.color=always release:prepare -P sign \
+            -DdeveloperConnection=scm:git:https://github.com/${REPO}.git
           cat release.properties
           RELEASE_TAG=$(grep '^scm.tag=' release.properties | cut -d'=' -f2)
           echo "RELEASE_TAG=${RELEASE_TAG}" >> "$GITHUB_ENV"
           mvn -B -ntp -Dstyle.color=always release:perform -P sign \
-            -DconnectionUrl=scm:git:https://github.com/${{ github.repository }}.git
+            -DconnectionUrl=scm:git:https://github.com/${REPO}.git
           echo "Released ${RELEASE_TAG} 🚀" >> "$GITHUB_STEP_SUMMARY"
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_TOKEN: ${{ secrets.OSSRH_TOKEN }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+          REPO: ${{ github.repository }}
 
       # release:perform checks the tagged code into target/checkout/ and runs
       # the central+sign profiles (see <releaseProfiles> in pom.xml). The
