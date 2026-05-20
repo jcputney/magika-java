@@ -15,6 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `VerificationReason`.
 - Optional `dev.jcputney:magika-java-tika` artifact with an embedded-ONNX Apache Tika
   `Detector` adapter and service-loader registration.
+- GitHub CodeQL static analysis workflow (`.github/workflows/codeql.yml`) running on
+  push, pull request, and weekly cron with the `security-and-quality` query suite.
+- OWASP Dependency-Check SCA scan (`.github/workflows/dependency-check.yml`) running
+  on push, pull request, and weekly cron. Wired via a `security` Maven profile that
+  fails the build on CVSS ≥ 7 in runtime/compile scopes; SARIF report is uploaded to
+  the GitHub Security tab.
+- Release workflow now attaches per-module CycloneDX SBOMs (JSON + XML) to the GitHub
+  Release and generates Sigstore-backed `actions/attest-build-provenance` attestations
+  for the published JARs plus `actions/attest-sbom` attestations linking each SBOM to
+  its JAR.
 
 ### Changed
 
