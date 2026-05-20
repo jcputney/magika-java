@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-20
+
 ### Added
 
 - MIME-focused `detectBytes`, `detectPath`, and `detectStream` APIs returning
@@ -18,9 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GitHub CodeQL static analysis workflow (`.github/workflows/codeql.yml`) running on
   push, pull request, and weekly cron with the `security-and-quality` query suite.
 - OWASP Dependency-Check SCA scan (`.github/workflows/dependency-check.yml`) running
-  on push, pull request, and weekly cron. Wired via a `security` Maven profile that
-  fails the build on CVSS ≥ 7 in runtime/compile scopes; SARIF report is uploaded to
+  on push to `main`, weekly cron, and `workflow_dispatch`. Uses the
+  `dependency-check/Dependency-Check_Action` Docker wrapper (pre-warmed NVD dataset),
+  scans only the consumer-facing runtime closure assembled via
+  `dependency:copy-dependencies`, and fails the build on CVSS ≥ 7. SARIF uploaded to
   the GitHub Security tab.
+- PR-time dependency review via `actions/dependency-review-action`
+  (`.github/workflows/dependency-review.yml`) — fast GHSA-backed check on every pull
+  request, complements the deeper scheduled OWASP scan.
+- Dependabot auto-merge workflow (`.github/workflows/dependabot-auto-merge.yml`) that
+  queues patch and minor Dependabot bumps for `--auto --squash` once required checks
+  pass.
 - Release workflow now attaches per-module CycloneDX SBOMs (JSON + XML) to the GitHub
   Release and generates Sigstore-backed `actions/attest-build-provenance` attestations
   for the published JARs plus `actions/attest-sbom` attestations linking each SBOM to
@@ -30,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Project converted to a Maven reactor while preserving the core artifact coordinates
   `dev.jcputney:magika-java`.
+- Runtime dependency bumps: `jackson-databind` 2.21.2 → 2.21.3, `slf4j-api` 2.0.17 →
+  2.0.18, `onnxruntime` 1.25.0 → 1.26.0.
 
 ## [0.3.0] - 2026-04-27
 
@@ -57,5 +69,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and in the `.planning/milestones/` archives. No `## [0.1.0]` / `## [0.2.0]` sections
   appear here by design — those versions had no external consumers.
 
-[Unreleased]: https://github.com/jcputney/magika-java/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/jcputney/magika-java/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/jcputney/magika-java/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/jcputney/magika-java/releases/tag/v0.3.0
