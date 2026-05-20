@@ -28,14 +28,14 @@ Maven:
 <dependency>
   <groupId>dev.jcputney</groupId>
   <artifactId>magika-java</artifactId>
-  <version>0.3.0</version>
+  <version>0.4.0</version>
 </dependency>
 ```
 
 Gradle:
 
 ```groovy
-implementation 'dev.jcputney:magika-java:0.3.0'
+implementation 'dev.jcputney:magika-java:0.4.0'
 ```
 
 Optional Apache Tika adapter:
@@ -44,7 +44,7 @@ Optional Apache Tika adapter:
 <dependency>
   <groupId>dev.jcputney</groupId>
   <artifactId>magika-java-tika</artifactId>
-  <version>0.3.0</version>
+  <version>0.4.0</version>
 </dependency>
 ```
 
