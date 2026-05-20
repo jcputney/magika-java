@@ -385,6 +385,11 @@
                                  the workflow can cache it on a separate (weekly) key
                                  without overlapping the maven dependency cache. -->
                             <dataDirectory>${user.home}/.cache/dependency-check-data</dataDirectory>
+                            <!-- Skip the NVD refresh when the local feed is younger
+                                 than this. Aligned with the workflow's ISO-week cache
+                                 key so warm-cache runs avoid the per-run revalidation
+                                 round-trip entirely. -->
+                            <nvdValidForHours>168</nvdValidForHours>
                         </configuration>
                         <executions>
                             <execution>

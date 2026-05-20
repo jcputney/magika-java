@@ -3,12 +3,11 @@ name: Dependency-Check
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   schedule:
     # Weekly Tuesday 09:30 ET (13:30 UTC). Offset from CodeQL's Monday cron so
     # a slow NVD API morning doesn't pile both onto the same hour.
     - cron: '30 13 * * 2'
+  workflow_dispatch:
 
 permissions:
   contents: read
