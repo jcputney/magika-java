@@ -381,15 +381,20 @@
                             <!-- Aggregate report at parent level so the workflow has
                                  one SARIF to upload. -->
                             <outputDirectory>${project.build.directory}/dependency-check</outputDirectory>
-                            <!-- Move the NVD feed cache out of ~/.m2/repository so
-                                 the workflow can cache it on a separate (weekly) key
-                                 without overlapping the maven dependency cache. -->
+                            <!-- Keep the NVD feed cache out of ~/.m2/repository so
+                                 it doesn't churn the maven dependency cache. CI no
+                                 longer reads from here (the Dependency-Check_Action
+                                 Docker image ships with its own pre-warmed NVD data);
+                                 this path matters only for local `mvn -P security`
+                                 runs. -->
                             <dataDirectory>${user.home}/.cache/dependency-check-data</dataDirectory>
                             <!-- Skip the NVD refresh when the local feed is younger
-                                 than this. Aligned with the workflow's ISO-week cache
-                                 key so warm-cache runs avoid the per-run revalidation
-                                 round-trip entirely. -->
+                                 than this. Keeps repeat local runs fast. -->
                             <nvdValidForHours>168</nvdValidForHours>
+                            <!-- OssIndex has required a Sonatype auth token since
+                                 Sep 2025; without one the analyzer fails. Disable it
+                                 here for local-dev parity with the CI invocation. -->
+                            <ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
                         </configuration>
                         <executions>
                             <execution>
