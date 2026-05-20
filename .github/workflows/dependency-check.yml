@@ -34,31 +34,52 @@ jobs:
           key: m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: m2-
 
-      # Populate ~/.m2 + module target/ so the dependency-check CLI can
-      # walk the resolved dependency graph from on-disk JARs.
-      - name: Resolve dependency graph
+      # Two-step setup so the scan only sees the consumer-facing surface:
+      #   1. `install` populates each module's target/ with its built JAR.
+      #   2. `dependency:copy-dependencies` (runtime scope) materializes the
+      #      transitive runtime deps into target/depcheck-deps per module —
+      #      e.g. jackson, slf4j, onnxruntime, tika-core. Build-time stuff
+      #      (Maven plugin transitives like plexus-utils, aircompressor)
+      #      stays out of this directory by construction.
+      - name: Resolve runtime dependencies
         run: |
           mvn -B -ntp -DskipTests \
             -Dspotless.check.skip=true \
             -Dlicense.skip=true \
             install
+          mvn -B -ntp -DskipTests \
+            -Dspotless.check.skip=true \
+            -Dlicense.skip=true \
+            dependency:copy-dependencies \
+            -DincludeScope=runtime \
+            -DoutputDirectory=target/depcheck-deps
 
       # Action wrapper runs in a Docker image that ships with a pre-warmed
       # NVD dataset, so cold runs only fetch the daily delta — no multi-hour
-      # cold-cache download like the Maven plugin path. OssIndex and the
-      # JS-ecosystem analyzers are disabled: OssIndex requires a Sonatype
-      # auth token since Sep 2025, and the JS analyzers have nothing to scan
-      # in a Java-only repo.
+      # cold-cache download like the Maven plugin path.
+      #
+      # Scan scope is the runtime closure (target/depcheck-deps), NOT the
+      # entire workspace: `path: '.'` previously picked up Maven plugin
+      # transitives that the invoker-plugin materializes under target/local-repo
+      # for integration tests. Those are build-time only and never ship to
+      # consumers, so their CVEs are noise in this gate. We do still scan
+      # each module's built JAR for completeness — the lib's own coordinates
+      # would never match a CPE today, but it's a free check.
+      #
+      # OssIndex and the JS-ecosystem analyzers stay disabled: OssIndex
+      # requires a Sonatype auth token since Sep 2025; the JS analyzers
+      # have nothing to scan in a Java-only repo.
       - name: Run OWASP Dependency-Check
         uses: dependency-check/Dependency-Check_Action@main
         env:
           JAVA_HOME: /opt/jdk
         with:
           project: 'magika-java'
-          path: '.'
+          path: 'magika-java/target/depcheck-deps'
           format: 'HTML'
           out: 'target'
           args: >
+            --scan magika-java-tika/target/depcheck-deps
             --format SARIF
             --failOnCVSS 7
             --nvdApiKey ${{ secrets.NVD_API_KEY }}
