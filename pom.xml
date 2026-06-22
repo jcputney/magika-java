@@ -70,7 +70,7 @@
         <version.plugin.gpg>3.2.8</version.plugin.gpg>
         <version.plugin.release>3.3.1</version.plugin.release>
         <version.plugin.central-publishing>0.11.0</version.plugin.central-publishing>
-        <version.plugin.cyclonedx>2.9.1</version.plugin.cyclonedx>
+        <version.plugin.cyclonedx>2.9.2</version.plugin.cyclonedx>
         <version.plugin.dependency-check>12.2.2</version.plugin.dependency-check>
     </properties>
 
