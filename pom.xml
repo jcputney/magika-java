@@ -57,7 +57,7 @@
         <version.jmh>1.37</version.jmh>
 
         <version.plugin.compiler>3.15.0</version.plugin.compiler>
-        <version.plugin.jar>3.5.0</version.plugin.jar>
+        <version.plugin.jar>3.5.1</version.plugin.jar>
         <version.plugin.surefire>3.5.6</version.plugin.surefire>
         <version.plugin.failsafe>3.5.6</version.plugin.failsafe>
         <version.plugin.source>3.4.0</version.plugin.source>
