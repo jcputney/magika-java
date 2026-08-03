@@ -37,7 +37,7 @@ jobs:
           restore-keys: |
             maven-codeql-
 
-      - uses: github/codeql-action/init@v4.37.3
+      - uses: github/codeql-action/init@v4.37.4
         with:
           languages: java-kotlin
           # security-and-quality includes the security-extended pack plus
@@ -50,6 +50,6 @@ jobs:
       - name: Compile
         run: mvn -B -ntp -DskipTests -Dspotless.check.skip=true -Dlicense.skip=true package
 
-      - uses: github/codeql-action/analyze@v4.37.3
+      - uses: github/codeql-action/analyze@v4.37.4
         with:
           category: /language:java-kotlin
