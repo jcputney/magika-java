@@ -7,11 +7,6 @@ Apache License 2.0.
 
 ---
 
-> [!TIP]
-> **Working on multi-tenant SaaS or AI on AWS?** I do one-week, fixed-price code audits. [audits.putney.io →](https://audits.putney.io)
-
----
-
 [![Maven Central](https://img.shields.io/maven-central/v/dev.jcputney/magika-java.svg)](https://central.sonatype.com/artifact/dev.jcputney/magika-java)
 
 **Parity:** verified label-and-score bit-identical to upstream Python `magika==1.0.2`
