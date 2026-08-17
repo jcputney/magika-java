@@ -27,7 +27,7 @@ jobs:
     needs: guard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Pre-flight checks (CHANGELOG / README / pom version)
         run: |
           set -euo pipefail
@@ -90,7 +90,7 @@ jobs:
       # "main-protection" ruleset — so release:prepare can push the
       # `prepare release` and `prepare for next development iteration` commits
       # without satisfying the 8 required status checks first.
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
