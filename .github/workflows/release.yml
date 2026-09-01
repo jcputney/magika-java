@@ -181,7 +181,7 @@ jobs:
           ls -la release-assets/
 
       - name: Attest build provenance for JARs
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: 'release-assets/*.jar'
 
