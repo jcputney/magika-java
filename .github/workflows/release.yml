@@ -186,13 +186,13 @@ jobs:
           subject-path: 'release-assets/*.jar'
 
       - name: Attest magika-java SBOM
-        uses: actions/attest-sbom@v3
+        uses: actions/attest-sbom@v4
         with:
           subject-path: 'release-assets/magika-java-${{ env.RELEASE_VERSION }}.jar'
           sbom-path: 'release-assets/magika-java-${{ env.RELEASE_VERSION }}-cyclonedx.json'
 
       - name: Attest magika-java-tika SBOM
-        uses: actions/attest-sbom@v3
+        uses: actions/attest-sbom@v4
         with:
           subject-path: 'release-assets/magika-java-tika-${{ env.RELEASE_VERSION }}.jar'
           sbom-path: 'release-assets/magika-java-tika-${{ env.RELEASE_VERSION }}-cyclonedx.json'
